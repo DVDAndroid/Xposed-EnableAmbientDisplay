@@ -3,6 +3,8 @@ Enable Ambient Display - Xposed
 
 Easy Xposed module for Lollipop which add Ambient Display
 
+![screenshot](screenshots/settings.png) ![screenshot](screenshots/ambient-display.png)
+
 Credits
 -------
 
