@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Enable Ambient Display - Xposed</string>
+    <string name="xposed_descr">Easy Xposed module for Lollipop which add Ambient Display</string>
+</resources>
