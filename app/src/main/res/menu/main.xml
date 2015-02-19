@@ -23,17 +23,14 @@
   ~ SOFTWARE.
   -->
 
-<resources>
-    <string name="app_name">Abilita Ambient Display - Xposed</string>
-    <string name="xposed_descr">Semplice modulo Xposed che aggiunge Ambient Display</string>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string name="config_screenBrightnessDoze">Luminosità dello schermo usata per oscurare lo schermo</string>
-    <string name="doze_pulse_duration_in">Quanto tempo ci vuole per accendersi? (ms)</string>
-    <string name="doze_pulse_duration_out">Quanto tempo ci vuole per spegnersi? (ms)</string>
-    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo ci vuole rimanere acceso? (ms)</string>
-    <string name="doze_small_icon_alpha">Opacità da applcare alle piccole icone durante il dozing</string>
-    <string name="warning_battery">Un valore più elevato determina un maggiore utilizzo di batteria</string>
-    <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
-    <string name="hot_reboot">Riavvio veloce</string>
-    <string name="reboot">Riavvio</string>
-</resources>
+    <item
+        android:id="@+id/reboot"
+        android:title="@string/reboot"/>
+
+    <item
+        android:id="@+id/hot_reboot"
+        android:title="@string/hot_reboot"/>
+
+</menu>

@@ -23,17 +23,38 @@
   ~ SOFTWARE.
   -->
 
-<resources>
-    <string name="app_name">Abilita Ambient Display - Xposed</string>
-    <string name="xposed_descr">Semplice modulo Xposed che aggiunge Ambient Display</string>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string name="config_screenBrightnessDoze">Luminosità dello schermo usata per oscurare lo schermo</string>
-    <string name="doze_pulse_duration_in">Quanto tempo ci vuole per accendersi? (ms)</string>
-    <string name="doze_pulse_duration_out">Quanto tempo ci vuole per spegnersi? (ms)</string>
-    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo ci vuole rimanere acceso? (ms)</string>
-    <string name="doze_small_icon_alpha">Opacità da applcare alle piccole icone durante il dozing</string>
-    <string name="warning_battery">Un valore più elevato determina un maggiore utilizzo di batteria</string>
-    <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
-    <string name="hot_reboot">Riavvio veloce</string>
-    <string name="reboot">Riavvio</string>
-</resources>
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="number"
+        android:key="doze_pulse_duration_in"
+        android:summary="@string/warning_battery"
+        android:title="@string/doze_pulse_duration_in"/>
+
+    <EditTextPreference
+        android:defaultValue="3000"
+        android:inputType="number"
+        android:key="doze_pulse_duration_visible"
+        android:summary="@string/warning_battery"
+        android:title="@string/doze_pulse_duration_visible"/>
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="number"
+        android:key="doze_pulse_duration_out"
+        android:summary="@string/warning_battery"
+        android:title="@string/doze_pulse_duration_out"/>
+
+    <Preference
+        android:key="config_screenBrightnessDoze"
+        android:summary="@string/warning_battery"
+        android:title="@string/config_screenBrightnessDoze"/>
+
+    <Preference
+        android:key="doze_small_icon_alpha"
+        android:summary="@string/warning_visibility"
+        android:title="@string/doze_small_icon_alpha"/>
+
+</PreferenceScreen>

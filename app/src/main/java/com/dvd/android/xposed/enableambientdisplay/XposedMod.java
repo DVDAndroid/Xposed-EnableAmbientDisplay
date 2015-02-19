@@ -28,14 +28,21 @@ import android.content.res.XResources;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 
 public class XposedMod implements IXposedHookInitPackageResources,
 		IXposedHookZygoteInit {
 
+	XSharedPreferences prefs;
+
 	@Override
 	public void initZygote(IXposedHookZygoteInit.StartupParam startupParam)
 			throws Throwable {
+
+		prefs = new XSharedPreferences(MainActivity.class.getPackage()
+				.getName());
+		prefs.makeWorldReadable();
 
 		// change values in framework-res
 		XResources.setSystemWideReplacement("android", "string",
@@ -45,8 +52,10 @@ public class XposedMod implements IXposedHookInitPackageResources,
 				"config_dozeAfterScreenOff", true);
 		XResources.setSystemWideReplacement("android", "bool",
 				"config_powerDecoupleInteractiveModeFromDisplay", true);
+
 		XResources.setSystemWideReplacement("android", "integer",
-				"config_screenBrightnessDoze", 17);
+				"config_screenBrightnessDoze", Integer.parseInt(prefs
+						.getString("config_screenBrightnessDoze", "17")));
 	}
 
 	@Override
@@ -63,5 +72,23 @@ public class XposedMod implements IXposedHookInitPackageResources,
 				"bool", "doze_display_state_supported", true);
 		initPackageResourcesParam.res.setReplacement("com.android.systemui",
 				"bool", "doze_pulse_on_pick_up", true);
+
+		initPackageResourcesParam.res.setReplacement("com.android.systemui",
+				"integer", "doze_pulse_duration_in", Integer.parseInt(prefs
+						.getString("doze_pulse_duration_in", "1000")));
+
+		initPackageResourcesParam.res.setReplacement("com.android.systemui",
+				"integer", "doze_pulse_duration_visible", Integer
+						.parseInt(prefs.getString(
+								"doze_pulse_duration_visible", "3000")));
+
+		initPackageResourcesParam.res.setReplacement("com.android.systemui",
+				"integer", "doze_pulse_duration_out", Integer.parseInt(prefs
+						.getString("doze_pulse_duration_out", "1000")));
+
+		initPackageResourcesParam.res.setReplacement("com.android.systemui",
+				"integer", "doze_small_icon_alpha", Integer.parseInt(prefs
+						.getString("doze_small_icon_alpha", "222")));
+
 	}
 }
