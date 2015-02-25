@@ -36,4 +36,8 @@
     <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
     <string name="hot_reboot">Riavvio veloce</string>
     <string name="reboot">Riavvio</string>
+    <string name="time_settings">Impostazioni del tempo</string>
+    <string name="reboot_required">Riavvio richiesto</string>
+    <string name="doze_pulse_schedule_resets">Numero massimo di volte che lo schermo si accenderà</string>
+    <string name="customizations">Personalizzazioni</string>
 </resources>

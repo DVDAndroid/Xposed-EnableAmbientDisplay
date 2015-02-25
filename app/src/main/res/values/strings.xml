@@ -33,7 +33,11 @@
     <string name="warning_visibility">A lower value obscures the icon</string>
     <string name="doze_small_icon_alpha">Alpha to apply to small icons when dozing</string>
     <string name="config_screenBrightnessDoze">Screen brightness used to dim the screen while dozing.</string>
+    <string name="doze_pulse_schedule_resets">Maximum number of times the notification pulse schedule can be reset</string>
 
     <string name="hot_reboot">Hot reboot</string>
     <string name="reboot">Reboot</string>
+    <string name="time_settings">Time settings</string>
+    <string name="reboot_required">Reboot required</string>
+    <string name="customizations">Customizations</string>
 </resources>

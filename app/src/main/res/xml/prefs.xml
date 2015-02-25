@@ -25,36 +25,48 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory android:title="@string/time_settings">
 
-    <EditTextPreference
-        android:defaultValue="1000"
-        android:inputType="number"
-        android:key="doze_pulse_duration_in"
-        android:summary="@string/warning_battery"
-        android:title="@string/doze_pulse_duration_in"/>
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:inputType="number"
+            android:key="doze_pulse_duration_in"
+            android:summary="@string/warning_battery"
+            android:title="@string/doze_pulse_duration_in"/>
 
-    <EditTextPreference
-        android:defaultValue="3000"
-        android:inputType="number"
-        android:key="doze_pulse_duration_visible"
-        android:summary="@string/warning_battery"
-        android:title="@string/doze_pulse_duration_visible"/>
+        <EditTextPreference
+            android:defaultValue="3000"
+            android:inputType="number"
+            android:key="doze_pulse_duration_visible"
+            android:summary="@string/warning_battery"
+            android:title="@string/doze_pulse_duration_visible"/>
 
-    <EditTextPreference
-        android:defaultValue="1000"
-        android:inputType="number"
-        android:key="doze_pulse_duration_out"
-        android:summary="@string/warning_battery"
-        android:title="@string/doze_pulse_duration_out"/>
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:inputType="number"
+            android:key="doze_pulse_duration_out"
+            android:summary="@string/warning_battery"
+            android:title="@string/doze_pulse_duration_out"/>
 
-    <Preference
-        android:key="config_screenBrightnessDoze"
-        android:summary="@string/warning_battery"
-        android:title="@string/config_screenBrightnessDoze"/>
+    </PreferenceCategory>
 
-    <Preference
-        android:key="doze_small_icon_alpha"
-        android:summary="@string/warning_visibility"
-        android:title="@string/doze_small_icon_alpha"/>
+    <PreferenceCategory android:title="@string/customizations">
+
+        <Preference
+            android:key="config_screenBrightnessDoze"
+            android:summary="@string/warning_battery"
+            android:title="@string/config_screenBrightnessDoze"/>
+
+        <Preference
+            android:key="doze_pulse_schedule_resets"
+            android:summary="@string/warning_battery"
+            android:title="@string/doze_pulse_schedule_resets"/>
+
+        <Preference
+            android:key="doze_small_icon_alpha"
+            android:summary="@string/warning_visibility"
+            android:title="@string/doze_small_icon_alpha"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

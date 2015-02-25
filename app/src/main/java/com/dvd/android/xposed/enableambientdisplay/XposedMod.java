@@ -90,5 +90,9 @@ public class XposedMod implements IXposedHookInitPackageResources,
 				"integer", "doze_small_icon_alpha", Integer.parseInt(prefs
 						.getString("doze_small_icon_alpha", "222")));
 
+		initPackageResourcesParam.res.setReplacement("com.android.systemui",
+				"integer", "doze_pulse_schedule_resets", Integer.parseInt(prefs
+						.getString("doze_pulse_schedule_resets", "1")));
+
 	}
 }

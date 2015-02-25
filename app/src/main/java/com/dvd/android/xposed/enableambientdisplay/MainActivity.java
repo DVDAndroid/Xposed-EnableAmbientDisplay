@@ -36,6 +36,7 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.NumberPicker;
+import android.widget.Toast;
 
 public class MainActivity extends PreferenceActivity implements
 		SharedPreferences.OnSharedPreferenceChangeListener {
@@ -78,6 +79,9 @@ public class MainActivity extends PreferenceActivity implements
 			EditTextPreference editTextPreference = (EditTextPreference) findPreference(key);
 			editTextPreference.setText(sharedPreferences.getString(key, ""));
 		}
+
+		Toast.makeText(getApplicationContext(),
+				getString(R.string.reboot_required), Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -125,6 +129,9 @@ public class MainActivity extends PreferenceActivity implements
 			case "config_screenBrightnessDoze":
 				createAlert(preference.getKey(), "17", 100);
 				break;
+			case "doze_pulse_schedule_resets":
+				createAlert(preference.getKey(), "1", 5);
+				break;
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -137,7 +144,7 @@ public class MainActivity extends PreferenceActivity implements
 				getPackageName()));
 		final NumberPicker np = new NumberPicker(this);
 		np.setMinValue(1);
-		np.setMaxValue(maxValue);/**/
+		np.setMaxValue(maxValue);
 		np.setValue(Integer.parseInt(getPreferenceManager()
 				.getSharedPreferences().getString(key, defaultValue)));
 		alert.setView(np);
