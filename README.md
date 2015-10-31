@@ -17,3 +17,9 @@ LICENSE
 -------
 
 [MIT License](http://opensource.org/licenses/MIT)
+
+
+Ambient Display WITHOUT Xposed
+------------------------------
+
+See [AmbientDisplayTheme](https://github.com/DVDAndroid/AmbientDisplayTheme)
