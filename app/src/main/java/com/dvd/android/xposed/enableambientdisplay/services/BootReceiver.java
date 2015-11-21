@@ -27,9 +27,6 @@ package com.dvd.android.xposed.enableambientdisplay.services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
-
-import de.robv.android.xposed.XposedBridge;
 
 public class BootReceiver extends BroadcastReceiver {
 
@@ -39,9 +36,6 @@ public class BootReceiver extends BroadcastReceiver {
 
 		if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
 			context.startService(new Intent(context, SensorService.class));
-			XposedBridge.log("broadcast bootreciver started");
-			Toast.makeText(context, "broadcast bootreciver started",
-					Toast.LENGTH_LONG).show();
 		}
 	}
 

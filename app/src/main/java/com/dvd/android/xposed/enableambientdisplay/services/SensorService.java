@@ -80,8 +80,10 @@ public class SensorService extends Service
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		mDozeProximity = mPrefs.getBoolean(DOZE_PROXIMITY, true);
 
-		log("isInteractive=" + isInteractive() + "\nmDozeProximity="
-				+ mDozeProximity);
+		if (DEBUG(this))
+			log("isInteractive=" + isInteractive() + "\nmDozeProximity="
+					+ mDozeProximity);
+
 		if (!isInteractive() && mDozeProximity) {
 			mSensor.enable();
 		}
@@ -132,10 +134,11 @@ public class SensorService extends Service
 	}
 
 	private void onDisplayOff() {
-		if (DEBUG(this))
+		if (DEBUG(this)) {
 			log("Display off");
+			log("mDozeProximity=" + mDozeProximity);
+		}
 
-		log("mDozeProximity=" + mDozeProximity);
 		if (mDozeProximity) {
 			mSensor.enable();
 		}
@@ -167,7 +170,9 @@ public class SensorService extends Service
 		public void onSensorChanged(SensorEvent event) {
 			long now = System.currentTimeMillis();
 			mIsNear = event.values[0] < mSensor.getMaximumRange();
-			log("mIsNear=" + mIsNear);
+
+			if (DEBUG(mContext))
+				log("mIsNear=" + mIsNear);
 
 			if (!mIsNear && (now - mLastDoze > DELAY_BETWEEN_DOZES_IN_MS)
 					&& !displayTurnedOn) {
