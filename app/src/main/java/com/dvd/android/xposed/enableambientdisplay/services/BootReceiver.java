@@ -22,28 +22,27 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.application'
+package com.dvd.android.xposed.enableambientdisplay.services;
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
-    defaultConfig {
-        applicationId "com.dvd.android.xposed.enableambientdisplay"
-        minSdkVersion 21
-        targetSdkVersion 23
-        versionCode 10
-        versionName '1.99 - BETA 1'
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    productFlavors {
-    }
-}
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+import de.robv.android.xposed.XposedBridge;
+
+public class BootReceiver extends BroadcastReceiver {
+
+	@Override
+	public void onReceive(final Context context, Intent intent) {
+		String action = intent.getAction();
+
+		if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+			context.startService(new Intent(context, SensorService.class));
+			XposedBridge.log("broadcast bootreciver started");
+			Toast.makeText(context, "broadcast bootreciver started",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
 }

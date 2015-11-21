@@ -24,64 +24,85 @@
 
 package com.dvd.android.xposed.enableambientdisplay;
 
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_DOZE;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_SLEEP;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_ALPHA;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILTY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.REBOOT;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.SOFT_REBOOT;
+
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
+import android.os.Handler;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends PreferenceActivity implements
-		SharedPreferences.OnSharedPreferenceChangeListener {
+import com.stericson.RootShell.RootShell;
+import com.stericson.RootShell.exceptions.RootDeniedException;
+import com.stericson.RootShell.execution.Command;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeoutException;
+
+import com.dvd.android.xposed.enableambientdisplay.services.SensorService;
+
+public class MainActivity extends PreferenceActivity
+		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getPreferenceManager().setSharedPreferencesMode(
-				Context.MODE_WORLD_READABLE);
+		getPreferenceManager()
+				.setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
 		addPreferencesFromResource(R.xml.prefs);
-	}
 
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void onResume() {
-		super.onResume();
-		getPreferenceScreen().getSharedPreferences()
-				.registerOnSharedPreferenceChangeListener(this);
-	}
+		SharedPreferences mPrefs = getPreferences(Context.MODE_PRIVATE);
 
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences()
-				.unregisterOnSharedPreferenceChangeListener(this);
-	}
+		if (mPrefs.getBoolean("welcome", true)) {
+			new AlertDialog.Builder(this)
+					.setPositiveButton(android.R.string.ok, null)
+					.setTitle(R.string.info).setMessage(R.string.aosp).show();
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
-		if (sharedPreferences.getString(key, "").equals("")) {
-			if (key.equals("doze_pulse_duration_visible")) {
-				sharedPreferences.edit().putString(key, "3000").apply();
-			} else {
-				sharedPreferences.edit().putString(key, "1000").apply();
-			}
-			EditTextPreference editTextPreference = (EditTextPreference) findPreference(key);
-			editTextPreference.setText(sharedPreferences.getString(key, ""));
+			mPrefs.edit().putBoolean("welcome", false).apply();
 		}
 
-		Toast.makeText(getApplicationContext(),
-				getString(R.string.reboot_required), Toast.LENGTH_LONG).show();
+		if (isEnabled()) {
+			getPreferenceScreen()
+					.removePreference(findPreference("not_enabled"));
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		getPreferenceScreen().getSharedPreferences()
+				.registerOnSharedPreferenceChangeListener(this);
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		getPreferenceScreen().getSharedPreferences()
+				.unregisterOnSharedPreferenceChangeListener(this);
+		super.onPause();
+	}
+
+	public boolean isEnabled() {
+		return false;
 	}
 
 	@Override
@@ -93,72 +114,99 @@ public class MainActivity extends PreferenceActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.testIt:
+				if (!RootShell.isAccessGiven())
+					break;
+
+				sendBroadcast(new Intent().setAction(ACTION_SLEEP));
+
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						sendBroadcast(new Intent().setAction(ACTION_DOZE));
+					}
+				}, 2000);
+				break;
+			case R.id.start_service:
+				if (SensorService.isRunning) {
+					Toast.makeText(this, R.string.service_already,
+							Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(this, R.string.service_started,
+							Toast.LENGTH_SHORT).show();
+					startService(
+							new Intent().setClass(this, SensorService.class));
+				}
+				break;
 			case R.id.reboot:
 				try {
-					Process proc = Runtime.getRuntime().exec(
-							new String[] { "su", "-c", "reboot" });
-					proc.waitFor();
-				} catch (Exception ex) {
-					ex.printStackTrace();
+					RootShell.getShell(true).add(new Command(0, REBOOT));
+				} catch (IOException | TimeoutException
+						| RootDeniedException e) {
+					Toast.makeText(MainActivity.this, e.getMessage(),
+							Toast.LENGTH_SHORT).show();
 				}
 				break;
 			case R.id.hot_reboot:
 				try {
-					Process proc = Runtime.getRuntime().exec(
-							new String[] { "su", "-c",
-									"busybox killall system_server" });
-					proc.waitFor();
-				} catch (Exception ex) {
-					ex.printStackTrace();
+					RootShell.getShell(true).add(new Command(0, SOFT_REBOOT));
+				} catch (IOException | TimeoutException
+						| RootDeniedException e) {
+					Toast.makeText(MainActivity.this, e.getMessage(),
+							Toast.LENGTH_SHORT).show();
 				}
+				break;
+			case R.id.info:
+				AlertDialog d = new AlertDialog.Builder(this)
+						.setPositiveButton(android.R.string.ok, null)
+						.setTitle(R.string.info).setMessage(R.string.about)
+						.create();
+				d.show();
+
+				((TextView) d.findViewById(android.R.id.message))
+						.setMovementMethod(LinkMovementMethod.getInstance());
+
 				break;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-			Preference preference) {
+	@SuppressWarnings("unchecked")
+	public void set(String key, String val) {
+		try {
+			Class SystemProperties = Class
+					.forName("android.os.SystemProperties");
 
-		switch (preference.getKey()) {
-			case "doze_small_icon_alpha":
-				createAlert(preference.getKey(), "222", 255);
-				break;
-			case "config_screenBrightnessDoze":
-				createAlert(preference.getKey(), "17", 100);
-				break;
-			case "doze_pulse_schedule_resets":
-				createAlert(preference.getKey(), "1", 5);
-				break;
+			Method set = SystemProperties.getMethod("set", String.class,
+					String.class);
+			set.invoke(SystemProperties, key, val);
+		} catch (IllegalArgumentException | ClassNotFoundException
+				| NoSuchMethodException | IllegalAccessException
+				| InvocationTargetException e) {
+			e.printStackTrace();
 		}
-
-		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
-	@SuppressWarnings("deprecation")
-	private void createAlert(final String key, String defaultValue, int maxValue) {
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(getResources().getIdentifier(key, "string",
-				getPackageName()));
-		final NumberPicker np = new NumberPicker(this);
-		np.setMinValue(1);
-		np.setMaxValue(maxValue);
-		np.setValue(Integer.parseInt(getPreferenceManager()
-				.getSharedPreferences().getString(key, defaultValue)));
-		alert.setView(np);
-		alert.setPositiveButton(android.R.string.ok,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						getPreferenceManager()
-								.getSharedPreferences()
-								.edit()
-								.putString(key, Integer.toString(np.getValue()))
-								.apply();
-					}
-				});
-		alert.show();
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+		switch (key) {
+			case DOZE_BRIGHTNESS:
+			case DOZE_ALPHA:
+				Toast.makeText(this, R.string.reboot_required,
+						Toast.LENGTH_SHORT).show();
+				break;
+			case DOZE_PROXIMITY:
+				break;
+			case DOZE_IN:
+			case DOZE_OUT:
+				set(key, Integer.toString(prefs.getInt(key, 1000)));
+				break;
+			case DOZE_VISIBILTY:
+				set(key, Integer.toString(prefs.getInt(key, 3000)));
+			case DOZE_RESETS:
+				set(key, Integer.toString(prefs.getInt(key, 1)));
+				break;
+		}
 	}
 }

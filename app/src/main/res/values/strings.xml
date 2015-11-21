@@ -26,18 +26,35 @@
     <string name="app_name">Enable Ambient Display - Xposed</string>
     <string name="xposed_descr">Easy Xposed module for Lollipop which add Ambient Display</string>
 
-    <string name="doze_pulse_duration_in">How long does it take to fade in? (ms)</string>
-    <string name="doze_pulse_duration_visible">Once faded in, how long does it stay visible? (ms)</string>
-    <string name="doze_pulse_duration_out">How long does it take to fade out? (ms)</string>
+    <string name="doze_pulse_duration_in">How long does it take to fade in?</string>
+    <string name="doze_pulse_duration_visible">Once faded in, how long does it stay visible?</string>
+    <string name="doze_pulse_duration_out">How long does it take to fade out?</string>
     <string name="warning_battery">A higher value causes a higher use of battery</string>
     <string name="warning_visibility">A lower value obscures the icon</string>
     <string name="doze_small_icon_alpha">Alpha to apply to small icons when dozing</string>
     <string name="config_screenBrightnessDoze">Screen brightness used to dim the screen while dozing.</string>
     <string name="doze_pulse_schedule_resets">Maximum number of times the notification pulse schedule can be reset</string>
-
     <string name="hot_reboot">Hot reboot</string>
     <string name="reboot">Reboot</string>
     <string name="time_settings">Time settings</string>
     <string name="reboot_required">Reboot required</string>
     <string name="customizations">Customizations</string>
+    <string name="notes">Notes</string>
+    <string name="root_required">Root required</string>
+    <string name="root_not_found">Root not found</string>
+    <string name="grant_root">Please grant root</string>
+    <string name="testIt">Test it</string>
+    <string name="module_not_enabled">Module not enabled</string>
+    <string name="doze_proximity">Activate doze with proximity sensor</string>
+    <string name="root_required_summ">Click here to grant root permission</string>
+    <string name="doze_not_pulse">Doze with proximity sensor is disabled</string>
+    <string name="doze_will_pulse">Doze with proximity sensor is enabled</string>
+    <string name="start_service">Start service</string>
+    <string name="service_already">Service already started</string>
+    <string name="service_started">Service started</string>
+    <string name="info">Info</string>
+    <string name="aosp">This module works on Google stock/AOSP based roms.\nIf you have got a Samsung or a LG device, try this module; if it works ok, if it doesn\'t I can\'t do anything</string>
+    <string name="def">Default</string>
+    <string name="about">Module created by <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nSource code available at <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
+
 </resources>
