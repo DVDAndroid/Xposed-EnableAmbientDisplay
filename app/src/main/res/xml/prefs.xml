@@ -99,6 +99,8 @@
 
         <Preference android:summary="@string/warning_battery"/>
 
+        <Preference android:summary="@string/warning_visibility"/>
+
         <SwitchPreference
             android:key="debug"
             android:title="DEBUG"/>

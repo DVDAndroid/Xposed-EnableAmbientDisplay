@@ -48,7 +48,6 @@ public class SensorService extends Service
 
 	private static final int DELAY_BETWEEN_DOZES_IN_MS = 2500;
 	public static boolean isRunning;
-
 	private Context mContext;
 	private ProximitySensor mSensor;
 	private PowerManager mPowerManager;

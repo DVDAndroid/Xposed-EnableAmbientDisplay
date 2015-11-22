@@ -28,12 +28,12 @@
     <string name="xposed_descr">Semplice modulo Xposed che aggiunge Ambient Display</string>
 
     <string name="config_screenBrightnessDoze">Luminosità dello schermo usata per oscurare lo schermo</string>
-    <string name="doze_pulse_duration_in">Quanto tempo ci vuole per accendersi?</string>
-    <string name="doze_pulse_duration_out">Quanto tempo ci vuole per spegnersi?</string>
-    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo ci vuole rimanere acceso?</string>
+    <string name="doze_pulse_duration_in">Quanto tempo serve per accendersi?</string>
+    <string name="doze_pulse_duration_out">Quanto tempo serve per spegnersi?</string>
+    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo serve rimanere acceso?</string>
     <string name="doze_small_icon_alpha">Opacità da applicare alle piccole icone durante il dozing</string>
     <string name="warning_battery">Un valore più elevato di luminosità determina un maggiore utilizzo di batteria</string>
-    <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
+    <string name="warning_visibility">Un valore inferiore di opacità oscura l\'icona</string>
     <string name="hot_reboot">Riavvio veloce</string>
     <string name="reboot">Riavvio</string>
     <string name="time_settings">Impostazioni del tempo</string>
@@ -41,15 +41,11 @@
     <string name="doze_pulse_schedule_resets">Numero massimo di volte che lo schermo si accenderà</string>
     <string name="customizations">Personalizzazioni</string>
     <string name="notes">Note</string>
-    <string name="root_not_found">Root non trovato</string>
-    <string name="root_required">Root richiesto</string>
-    <string name="root_required_summ">Clicca qui per concedere permessi root</string>
     <string name="testIt">Fai un test</string>
-    <string name="grant_root">Concedi permessi di root</string>
     <string name="module_not_enabled">Modulo non abilitato</string>
     <string name="doze_proximity">Attivare doze con sensore di prossimità</string>
-    <string name="doze_not_pulse">Doze a telefono alzato è disabilitato</string>
-    <string name="doze_will_pulse">Doze a telefono alzato è abilitato</string>
+    <string name="doze_not_pulse">Doze con sensore di prossimità è disabilitato</string>
+    <string name="doze_will_pulse">Doze con sensore di prossimità è abilitato</string>
     <string name="start_service">Avvia servizio</string>
     <string name="service_already">Servizio già partito</string>
     <string name="service_started">Servizio partito</string>
