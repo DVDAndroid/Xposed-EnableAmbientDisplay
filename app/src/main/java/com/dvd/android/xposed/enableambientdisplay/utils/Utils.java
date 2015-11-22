@@ -33,17 +33,17 @@ public class Utils {
 	public static final String ACTION_SLEEP = "dvd.ACTION_SLEEP";
 	public static final String SYS_UI_PKG_NAME = "com.android.systemui";
 	public static final String THIS_PKG_NAME = "com.dvd.android.xposed.enableambientdisplay";
-	public static final String DOZE_SUPP = "doze_display_state_supported";
-	public static final String DOZE_PICK_UP = "doze_pulse_on_pick_up";
-	public static final String DOZE_IN = "doze.pulse.duration.in";
-	public static final String DOZE_OUT = "doze.pulse.duration.out";
-	public static final String DOZE_VISIBILTY = "doze.pulse.duration.visible";
-	public static final String DOZE_ALPHA = "doze_small_icon_alpha";
-	public static final String DOZE_RESETS = "doze.pulse.schedule.resets";
-	public static final String DOZE_PROXIMITY = "doze_proximity";
-	public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
 	public static final String REBOOT = "reboot";
 	public static final String SOFT_REBOOT = "busybox killall system_server";
+	public static final String DOZE_SUPP = "doze_display_state_supported";
+	public static final String DOZE_PICK_UP = "doze_pulse_on_pick_up";
+	public static final String DOZE_IN = "doze_pulse_duration_in";
+	public static final String DOZE_OUT = "doze_pulse_duration_out";
+	public static final String DOZE_VISIBILTY = "doze_pulse_duration_visible";
+	public static final String DOZE_ALPHA = "doze_small_icon_alpha";
+	public static final String DOZE_RESETS = "doze_pulse_schedule_resets";
+	public static final String DOZE_PROXIMITY = "doze_proximity";
+	public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
 
 	public static boolean DEBUG(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context)

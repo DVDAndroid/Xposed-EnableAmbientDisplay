@@ -28,8 +28,12 @@ import static android.content.res.XResources.setSystemWideReplacement;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_SLEEP;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_ALPHA;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PICK_UP;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_SUPP;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILTY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.SYS_UI_PKG_NAME;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.THIS_PKG_NAME;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
@@ -38,6 +42,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.XResources;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -89,11 +94,12 @@ public class XposedMod extends XC_MethodHook
 		mPrefs.makeWorldReadable();
 
 		// change values in framework-res
-		setSystemWideReplacement("android", "string", "config_dozeComponent",
+		XResources.setSystemWideReplacement("android", "string",
+				"config_dozeComponent",
 				"com.android.systemui/com.android.systemui.doze.DozeService");
-		setSystemWideReplacement("android", "bool", "config_dozeAfterScreenOff",
-				true);
-		setSystemWideReplacement("android", "bool",
+		XResources.setSystemWideReplacement("android", "bool",
+				"config_dozeAfterScreenOff", true);
+		XResources.setSystemWideReplacement("android", "bool",
 				"config_powerDecoupleInteractiveModeFromDisplay", true);
 
 		setSystemWideReplacement("android", "integer", DOZE_BRIGHTNESS,
@@ -112,6 +118,21 @@ public class XposedMod extends XC_MethodHook
 		resParam.res.setReplacement(SYS_UI_PKG_NAME, "bool", DOZE_SUPP, true);
 		resParam.res.setReplacement(SYS_UI_PKG_NAME, "bool", DOZE_PICK_UP,
 				true);
+
+		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_IN,
+				mPrefs.getInt(DOZE_IN, 1000));
+
+		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_VISIBILTY,
+				mPrefs.getInt(DOZE_VISIBILTY, 3000));
+
+		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_OUT,
+				mPrefs.getInt(DOZE_OUT, 1000));
+
+		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_ALPHA,
+				mPrefs.getInt(DOZE_ALPHA, 222));
+
+		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_RESETS,
+				mPrefs.getInt(DOZE_RESETS, 1));
 
 		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_ALPHA,
 				mPrefs.getInt(DOZE_ALPHA, 222));

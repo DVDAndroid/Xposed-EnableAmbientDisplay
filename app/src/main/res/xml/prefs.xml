@@ -34,7 +34,7 @@
 
         <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="1000"
-            android:key="doze.pulse.duration.in"
+            android:key="doze_pulse_duration_in"
             android:max="5000"
             android:title="@string/doze_pulse_duration_in"
             app:min="0"
@@ -42,7 +42,7 @@
 
         <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="3000"
-            android:key="doze.pulse.duration.visible"
+            android:key="doze_pulse_duration_visible"
             android:max="5000"
             android:title="@string/doze_pulse_duration_visible"
             app:min="0"
@@ -50,7 +50,7 @@
 
         <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="1000"
-            android:key="doze.pulse.duration.out"
+            android:key="doze_pulse_duration_out"
             android:max="5000"
             android:title="@string/doze_pulse_duration_out"
             app:min="0"
@@ -70,7 +70,7 @@
 
         <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="1"
-            android:key="doze.pulse.schedule.resets"
+            android:key="doze_pulse_schedule_resets"
             android:max="5"
             android:title="@string/doze_pulse_schedule_resets"
             app:min="1"/>

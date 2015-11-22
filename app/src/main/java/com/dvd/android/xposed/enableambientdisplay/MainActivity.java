@@ -192,19 +192,14 @@ public class MainActivity extends PreferenceActivity
 		switch (key) {
 			case DOZE_BRIGHTNESS:
 			case DOZE_ALPHA:
+			case DOZE_IN:
+			case DOZE_OUT:
+			case DOZE_VISIBILTY:
+			case DOZE_RESETS:
 				Toast.makeText(this, R.string.reboot_required,
 						Toast.LENGTH_SHORT).show();
 				break;
 			case DOZE_PROXIMITY:
-				break;
-			case DOZE_IN:
-			case DOZE_OUT:
-				set(key, Integer.toString(prefs.getInt(key, 1000)));
-				break;
-			case DOZE_VISIBILTY:
-				set(key, Integer.toString(prefs.getInt(key, 3000)));
-			case DOZE_RESETS:
-				set(key, Integer.toString(prefs.getInt(key, 1)));
 				break;
 		}
 	}
