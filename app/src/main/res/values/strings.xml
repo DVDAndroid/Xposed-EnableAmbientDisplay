@@ -29,7 +29,7 @@
     <string name="doze_pulse_duration_in">How long does it take to fade in?</string>
     <string name="doze_pulse_duration_visible">Once faded in, how long does it stay visible?</string>
     <string name="doze_pulse_duration_out">How long does it take to fade out?</string>
-    <string name="warning_battery">A higher value causes a higher use of battery</string>
+    <string name="warning_battery">A higher value of brightness causes a higher use of battery</string>
     <string name="warning_visibility">A lower value obscures the icon</string>
     <string name="doze_small_icon_alpha">Alpha to apply to small icons when dozing</string>
     <string name="config_screenBrightnessDoze">Screen brightness used to dim the screen while dozing.</string>

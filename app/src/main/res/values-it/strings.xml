@@ -32,7 +32,7 @@
     <string name="doze_pulse_duration_out">Quanto tempo ci vuole per spegnersi?</string>
     <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo ci vuole rimanere acceso?</string>
     <string name="doze_small_icon_alpha">Opacità da applicare alle piccole icone durante il dozing</string>
-    <string name="warning_battery">Un valore più elevato determina un maggiore utilizzo di batteria</string>
+    <string name="warning_battery">Un valore più elevato di luminosità determina un maggiore utilizzo di batteria</string>
     <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
     <string name="hot_reboot">Riavvio veloce</string>
     <string name="reboot">Riavvio</string>

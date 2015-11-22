@@ -56,7 +56,7 @@ public class SensorService extends Service
 	private long mLastDoze;
 	private SharedPreferences mPrefs;
 	private boolean mDozeProximity;
-	private boolean displayTurnedOn = false;
+	private boolean displayTurnedOff = false;
 	private BroadcastReceiver mScreenStateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -142,7 +142,7 @@ public class SensorService extends Service
 		if (mDozeProximity) {
 			mSensor.enable();
 		}
-		displayTurnedOn = true;
+		displayTurnedOff = true;
 	}
 
 	@Override
@@ -175,11 +175,11 @@ public class SensorService extends Service
 				log("mIsNear=" + mIsNear);
 
 			if (!mIsNear && (now - mLastDoze > DELAY_BETWEEN_DOZES_IN_MS)
-					&& !displayTurnedOn) {
+					&& !displayTurnedOff) {
 				launchDozePulse();
 			}
 
-			displayTurnedOn = false;
+			displayTurnedOff = false;
 		}
 
 		@Override

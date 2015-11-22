@@ -88,6 +88,7 @@ public class MainActivity extends PreferenceActivity
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	protected void onResume() {
 		getPreferenceScreen().getSharedPreferences()
 				.registerOnSharedPreferenceChangeListener(this);
@@ -95,6 +96,7 @@ public class MainActivity extends PreferenceActivity
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	protected void onPause() {
 		getPreferenceScreen().getSharedPreferences()
 				.unregisterOnSharedPreferenceChangeListener(this);
@@ -115,9 +117,6 @@ public class MainActivity extends PreferenceActivity
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.testIt:
-				if (!RootShell.isAccessGiven())
-					break;
-
 				sendBroadcast(new Intent().setAction(ACTION_SLEEP));
 
 				new Handler().postDelayed(new Runnable() {
