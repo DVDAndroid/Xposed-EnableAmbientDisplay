@@ -63,6 +63,10 @@ import com.dvd.android.xposed.enableambientdisplay.services.SensorService;
 public class MainActivity extends PreferenceActivity
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+	public static boolean isEnabled() {
+		return false;
+	}
+
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,7 @@ public class MainActivity extends PreferenceActivity
 			mPrefs.edit().putBoolean("welcome", false).apply();
 		}
 
+		// noinspection ConstantConditions
 		if (isEnabled()) {
 			getPreferenceScreen()
 					.removePreference(findPreference("not_enabled"));
@@ -101,10 +106,6 @@ public class MainActivity extends PreferenceActivity
 		getPreferenceScreen().getSharedPreferences()
 				.unregisterOnSharedPreferenceChangeListener(this);
 		super.onPause();
-	}
-
-	public boolean isEnabled() {
-		return false;
 	}
 
 	@Override
