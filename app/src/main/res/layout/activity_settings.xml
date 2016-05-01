@@ -23,23 +23,15 @@
   ~ SOFTWARE.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <item
-        android:id="@+id/testIt"
-        android:title="@string/testIt"/>
+    <FrameLayout
+        android:id="@+id/fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
-    <item
-        android:id="@+id/service"
-        tools:ignore="MenuTitle"/>
-
-    <item
-        android:id="@+id/hot_reboot"
-        android:title="@string/hot_reboot"/>
-
-    <item
-        android:id="@+id/info"
-        android:title="@string/info"/>
-
-</menu>
+</LinearLayout>

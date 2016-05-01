@@ -87,7 +87,7 @@
     <PreferenceCategory android:title="@string/doze_proximity">
 
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="doze_proximity"
             android:summaryOff="@string/doze_not_pulse"
             android:summaryOn="@string/doze_will_pulse"

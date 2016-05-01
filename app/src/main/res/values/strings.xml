@@ -46,11 +46,12 @@
     <string name="doze_not_pulse">Doze with proximity sensor is disabled</string>
     <string name="doze_will_pulse">Doze with proximity sensor is enabled</string>
     <string name="start_service">Start service</string>
-    <string name="service_already">Service already started</string>
     <string name="service_started">Service started</string>
     <string name="info">Info</string>
-    <string name="aosp">This module works on Google stock/AOSP based roms.\nIf you have got a Samsung or a LG device, try this module; if it works ok, if it doesn\'t I can\'t do anything</string>
+    <string name="aosp">This module works on Google stock/AOSP based roms.\nIf you have got a Samsung or a LG device, try this module; if it works OK, if it doesn\'t I can\'t do anything</string>
     <string name="def">Default</string>
     <string name="about">Module created by <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nSource code available at <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
+    <string name="service_stopped">Service stopped</string>
+    <string name="stop_service">Stop service</string>
 
 </resources>

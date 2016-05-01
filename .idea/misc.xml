@@ -2,7 +2,6 @@
 <project version="4">
   <component name="EclipseCodeFormatter">
     <option name="defaultSettings" value="true" />
-    <option name="formatter" value="ECLIPSE" />
     <option name="id" value="1417267710337" />
     <option name="importOrder" value="android;com;java;javax;de.robv.android.xposed;com.dvd;" />
     <option name="name" value="default" />

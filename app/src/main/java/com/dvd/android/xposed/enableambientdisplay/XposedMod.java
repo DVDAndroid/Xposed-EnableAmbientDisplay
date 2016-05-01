@@ -24,155 +24,69 @@
 
 package com.dvd.android.xposed.enableambientdisplay;
 
-import static android.content.res.XResources.setSystemWideReplacement;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_SLEEP;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_ALPHA;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PICK_UP;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_SUPP;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILTY;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.SYS_UI_PKG_NAME;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.THIS_PKG_NAME;
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.XResources;
-import android.os.Build;
-import android.os.PowerManager;
-import android.os.SystemClock;
+import com.dvd.android.xposed.enableambientdisplay.hook.SystemUiHook;
+import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class XposedMod extends XC_MethodHook
-		implements IXposedHookInitPackageResources, IXposedHookZygoteInit,
-		IXposedHookLoadPackage {
+import static android.content.res.XResources.setSystemWideReplacement;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.PACKAGE_SYSTEMUI;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.THIS_PKG_NAME;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logD;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logW;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-	private static Context mContext;
-	private XSharedPreferences mPrefs;
-	private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(ACTION_SLEEP)) {
-				sleep();
-			}
-		}
-	};
+public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
-	private static void sleep() {
-		try {
-			final PowerManager powerManager = (PowerManager) mContext
-					.getSystemService(Context.POWER_SERVICE);
+    private static final String TAG = "XposedMod";
+    private static XSharedPreferences sPrefs;
 
-			XposedHelpers.callMethod(powerManager, "goToSleep",
-					SystemClock.uptimeMillis());
-		} catch (Exception e) {
-			XposedBridge.log(e);
-		}
+    @Override
+    public void initZygote(StartupParam startupParam) throws Throwable {
+        sPrefs = new XSharedPreferences(Utils.THIS_PKG_NAME, MainActivity.class.getSimpleName());
+        logD(TAG, sPrefs.toString());
+        Utils.debug = sPrefs.getBoolean("debug", false);
 
-	}
+        if (!sPrefs.getBoolean("can_read_prefs", false)) {
+            // With SELinux enforcing, it might happen that we don't have access
+            // to the prefs file. Test this by reading a test key that should be
+            // set to true. If it is false, we either can't read the file or the
+            // user has never opened the preference screen before.
+            // Credits to AndroidN-ify
+            logW(TAG, "Can't read prefs file, default values will be applied in hooks!");
+        }
 
-	@Override
-	public void initZygote(IXposedHookZygoteInit.StartupParam startupParam)
-			throws Throwable {
+        setSystemWideReplacement("android", "string", "config_dozeComponent", "com.android.systemui/com.android.systemui.doze.DozeService");
+        setSystemWideReplacement("android", "bool", "config_dozeAfterScreenOff", true);
+        setSystemWideReplacement("android", "bool", "config_powerDecoupleInteractiveModeFromDisplay", true);
 
-		mPrefs = new XSharedPreferences(THIS_PKG_NAME);
-		mPrefs.makeWorldReadable();
+        setSystemWideReplacement("android", "integer", DOZE_BRIGHTNESS, sPrefs.getInt(DOZE_BRIGHTNESS, 17));
+    }
 
-		// change values in framework-res
-		XResources.setSystemWideReplacement("android", "string",
-				"config_dozeComponent",
-				"com.android.systemui/com.android.systemui.doze.DozeService");
-		XResources.setSystemWideReplacement("android", "bool",
-				"config_dozeAfterScreenOff", true);
-		XResources.setSystemWideReplacement("android", "bool",
-				"config_powerDecoupleInteractiveModeFromDisplay", true);
+    @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        if (lpparam.packageName.equals(PACKAGE_SYSTEMUI)) {
+            logD(TAG, "Hooking SystemUI");
+            SystemUiHook.hook(lpparam.classLoader, sPrefs);
+        } else if (lpparam.packageName.equals(THIS_PKG_NAME)) {
+            logD(TAG, "Hooking this module");
+            findAndHookMethod(THIS_PKG_NAME + ".MainActivity", lpparam.classLoader, "isEnabled", XC_MethodReplacement.returnConstant(true));
+        }
+    }
 
-		setSystemWideReplacement("android", "integer", DOZE_BRIGHTNESS,
-				mPrefs.getInt(DOZE_BRIGHTNESS, 17));
-	}
-
-	@Override
-	public void handleInitPackageResources(
-			XC_InitPackageResources.InitPackageResourcesParam resParam)
-					throws Throwable {
-		String packageName = resParam.packageName;
-
-		if (!packageName.equals(SYS_UI_PKG_NAME))
-			return;
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "bool", DOZE_SUPP, true);
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "bool", DOZE_PICK_UP,
-				true);
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_IN,
-				mPrefs.getInt(DOZE_IN, 1000));
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_VISIBILTY,
-				mPrefs.getInt(DOZE_VISIBILTY, 3000));
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_OUT,
-				mPrefs.getInt(DOZE_OUT, 1000));
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_ALPHA,
-				mPrefs.getInt(DOZE_ALPHA, 222));
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_RESETS,
-				mPrefs.getInt(DOZE_RESETS, 1));
-
-		resParam.res.setReplacement(SYS_UI_PKG_NAME, "integer", DOZE_ALPHA,
-				mPrefs.getInt(DOZE_ALPHA, 222));
-
-	}
-
-	@Override
-	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam)
-			throws Throwable {
-		String packageName = lpparam.packageName;
-
-		if (packageName.equals(THIS_PKG_NAME)) {
-			findAndHookMethod(THIS_PKG_NAME + ".MainActivity",
-					lpparam.classLoader, "isEnabled",
-					XC_MethodReplacement.returnConstant(true));
-		}
-
-		if (packageName.equals(SYS_UI_PKG_NAME)) {
-			String classKeyguard = "com.android.systemui.keyguard.KeyguardViewMediator";
-
-			final Class<?> keyguardClass = XposedHelpers
-					.findClass(classKeyguard, lpparam.classLoader);
-
-			String setupMethodName = Build.VERSION.SDK_INT >= 22 ? "setupLocked"
-					: "setup";
-
-			XposedHelpers.findAndHookMethod(keyguardClass, setupMethodName,
-					new XC_MethodHook() {
-						@Override
-						protected void afterHookedMethod(
-								final MethodHookParam param) throws Throwable {
-							mContext = (Context) XposedHelpers.getObjectField(
-									param.thisObject, "mContext");
-
-							IntentFilter intentFilter = new IntentFilter();
-							intentFilter.addAction(ACTION_SLEEP);
-							mContext.registerReceiver(mBroadcastReceiver,
-									intentFilter);
-						}
-					});
-		}
-	}
+    @Override
+    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
+        if (resparam.packageName.equals(PACKAGE_SYSTEMUI)) {
+            logD(TAG, "Hooking SystemUI resources");
+            SystemUiHook.hookRes(resparam, sPrefs);
+        }
+    }
 }

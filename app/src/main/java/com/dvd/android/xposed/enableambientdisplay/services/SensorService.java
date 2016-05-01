@@ -24,11 +24,6 @@
 
 package com.dvd.android.xposed.enableambientdisplay.services;
 
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_DOZE;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DEBUG;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
-import static de.robv.android.xposed.XposedBridge.log;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,14 +38,17 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_DOZE;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
+
 public class SensorService extends Service
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int DELAY_BETWEEN_DOZES_IN_MS = 2500;
-	public static boolean isRunning;
-	private Context mContext;
-	private ProximitySensor mSensor;
-	private PowerManager mPowerManager;
+    private static final String TAG = "SensorService";
+    private static boolean isRunning;
+    private ProximitySensor mSensor;
+    private PowerManager mPowerManager;
 
 	private long mLastDoze;
 	private SharedPreferences mPrefs;
@@ -66,22 +64,20 @@ public class SensorService extends Service
 			}
 		}
 	};
+    private Context mContext;
 
-	@Override
-	public void onCreate() {
-		if (DEBUG(this))
-			log("SensorService Started");
+    public static boolean isRunning() {
+        return isRunning;
+    }
 
-		mContext = this;
-		mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    @Override
+    public void onCreate() {
+        mContext = this;
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		mSensor = new ProximitySensor(mContext);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		mPrefs.registerOnSharedPreferenceChangeListener(this);
 		mDozeProximity = mPrefs.getBoolean(DOZE_PROXIMITY, true);
-
-		if (DEBUG(this))
-			log("isInteractive=" + isInteractive() + "\nmDozeProximity="
-					+ mDozeProximity);
 
 		if (!isInteractive() && mDozeProximity) {
 			mSensor.enable();
@@ -92,13 +88,9 @@ public class SensorService extends Service
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (DEBUG(this))
-			log("Starting service");
-
-		IntentFilter screenStateFilter = new IntentFilter(
-				Intent.ACTION_SCREEN_ON);
-		screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
-		mContext.registerReceiver(mScreenStateReceiver, screenStateFilter);
+        IntentFilter screenStateFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        mContext.registerReceiver(mScreenStateReceiver, screenStateFilter);
 
 		return START_STICKY;
 	}
@@ -126,18 +118,10 @@ public class SensorService extends Service
 	}
 
 	private void onDisplayOn() {
-		if (DEBUG(this))
-			log("Display on");
-
 		mSensor.disable();
 	}
 
 	private void onDisplayOff() {
-		if (DEBUG(this)) {
-			log("Display off");
-			log("mDozeProximity=" + mDozeProximity);
-		}
-
 		if (mDozeProximity) {
 			mSensor.enable();
 		}
@@ -145,8 +129,7 @@ public class SensorService extends Service
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
 		if (key.equals(DOZE_PROXIMITY))
 			mDozeProximity = sharedPreferences.getBoolean(DOZE_PROXIMITY, true);
@@ -160,23 +143,18 @@ public class SensorService extends Service
 		private boolean mIsNear = false;
 
 		public ProximitySensor(Context context) {
-			mSensorManager = (SensorManager) context
-					.getSystemService(Context.SENSOR_SERVICE);
-			mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-		}
+            mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        }
 
 		@Override
 		public void onSensorChanged(SensorEvent event) {
 			long now = System.currentTimeMillis();
 			mIsNear = event.values[0] < mSensor.getMaximumRange();
 
-			if (DEBUG(mContext))
-				log("mIsNear=" + mIsNear);
-
-			if (!mIsNear && (now - mLastDoze > DELAY_BETWEEN_DOZES_IN_MS)
-					&& !displayTurnedOff) {
-				launchDozePulse();
-			}
+            if (!mIsNear && (now - mLastDoze > DELAY_BETWEEN_DOZES_IN_MS) && !displayTurnedOff) {
+                launchDozePulse();
+            }
 
 			displayTurnedOff = false;
 		}
@@ -187,9 +165,8 @@ public class SensorService extends Service
 		}
 
 		public void enable() {
-			mSensorManager.registerListener(this, mSensor,
-					SensorManager.SENSOR_DELAY_NORMAL);
-		}
+            mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
 		public void disable() {
 			mSensorManager.unregisterListener(this, mSensor);

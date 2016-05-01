@@ -47,11 +47,12 @@
     <string name="doze_not_pulse">Doze con sensore di prossimità è disabilitato</string>
     <string name="doze_will_pulse">Doze con sensore di prossimità è abilitato</string>
     <string name="start_service">Avvia servizio</string>
-    <string name="service_already">Servizio già partito</string>
     <string name="service_started">Servizio partito</string>
     <string name="info">Info</string>
     <string name="def">Default</string>
     <string name="aosp">Questo modulo funziona con Google stock/AOSP-basate rom.\nSe hai un telefono Samsung o LG, prova questo modulo; se funziona, ok; se non funziona non posso fare niente</string>
     <string name="about">Modulo creato da <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nCodice sorgente disponibile su <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
+    <string name="service_stopped">Servizio stoppato</string>
+    <string name="stop_service">Stop servizio</string>
 
 </resources>

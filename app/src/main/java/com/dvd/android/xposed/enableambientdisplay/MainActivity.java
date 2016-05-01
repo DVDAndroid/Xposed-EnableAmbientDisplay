@@ -24,7 +24,28 @@
 
 package com.dvd.android.xposed.enableambientdisplay;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceFragment;
+import android.text.method.LinkMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.dvd.android.xposed.enableambientdisplay.services.SensorService;
+
+import java.io.File;
+
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_DOZE;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_HOT_REBOOT;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_PREFS_CHANGED;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.ACTION_SLEEP;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_ALPHA;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
@@ -32,176 +53,188 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILTY;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.REBOOT;
-import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.SOFT_REBOOT;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILITY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_KEY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_VALUE;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceActivity;
-import android.text.method.LinkMovementMethod;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
+public class MainActivity extends Activity {
 
-import com.stericson.RootShell.RootShell;
-import com.stericson.RootShell.exceptions.RootDeniedException;
-import com.stericson.RootShell.execution.Command;
+    private static MenuItem mServiceItem;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeoutException;
+    public static boolean isEnabled() {
+        return false;
+    }
 
-import com.dvd.android.xposed.enableambientdisplay.services.SensorService;
+    private static void updateMenuItem() {
+        new android.os.Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mServiceItem != null)
+                    mServiceItem.setTitle(SensorService.isRunning() ? R.string.stop_service : R.string.start_service);
+            }
+        }, 500);
+    }
 
-public class MainActivity extends PreferenceActivity
-		implements SharedPreferences.OnSharedPreferenceChangeListener {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+        if (savedInstanceState == null)
+            getFragmentManager().beginTransaction().replace(R.id.fragment, new SettingsFragment()).commit();
+    }
 
-	public static boolean isEnabled() {
-		return false;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
 
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		getPreferenceManager()
-				.setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
-		addPreferencesFromResource(R.xml.prefs);
+        mServiceItem = menu.findItem(R.id.service);
+        updateMenuItem();
 
-		SharedPreferences mPrefs = getPreferences(Context.MODE_PRIVATE);
+        //noinspection ConstantConditions
+        if (!isEnabled())
+            menu.removeItem(R.id.hot_reboot);
+        return true;
+    }
 
-		if (mPrefs.getBoolean("welcome", true)) {
-			new AlertDialog.Builder(this)
-					.setPositiveButton(android.R.string.ok, null)
-					.setTitle(R.string.info).setMessage(R.string.aosp).show();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.testIt:
+                sendBroadcast(new Intent().setAction(ACTION_SLEEP));
 
-			mPrefs.edit().putBoolean("welcome", false).apply();
-		}
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        sendBroadcast(new Intent().setAction(ACTION_DOZE));
+                    }
+                }, 2000);
+                break;
+            case R.id.service:
+                Intent service = new Intent().setClass(this, SensorService.class);
+                if (SensorService.isRunning()) {
+                    Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_SHORT).show();
+                    stopService(service);
+                } else {
+                    Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show();
+                    startService(service);
+                }
+                updateMenuItem();
+                break;
+            case R.id.hot_reboot:
+                sendBroadcast(new Intent(ACTION_HOT_REBOOT));
+                break;
+            case R.id.info:
+                AlertDialog d = new AlertDialog.Builder(this)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setTitle(R.string.info)
+                        .setMessage(R.string.about)
+                        .create();
+                d.show();
 
-		// noinspection ConstantConditions
-		if (isEnabled()) {
-			getPreferenceScreen()
-					.removePreference(findPreference("not_enabled"));
-		}
-	}
+                ((TextView) d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void onResume() {
-		getPreferenceScreen().getSharedPreferences()
-				.registerOnSharedPreferenceChangeListener(this);
-		super.onResume();
-	}
+                break;
+        }
 
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void onPause() {
-		getPreferenceScreen().getSharedPreferences()
-				.unregisterOnSharedPreferenceChangeListener(this);
-		super.onPause();
-	}
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+    public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.testIt:
-				sendBroadcast(new Intent().setAction(ACTION_SLEEP));
+        @Override
+        @SuppressLint("CommitPrefEdits")
+        @SuppressWarnings("deprecation")
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
+            getPreferenceManager().setSharedPreferencesName(MainActivity.class.getSimpleName());
+            addPreferencesFromResource(R.xml.prefs);
+            // SELinux test, see XposedMod
+            getPreferenceManager().getSharedPreferences().edit().putBoolean("can_read_prefs", true).commit();
 
-				new Handler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						sendBroadcast(new Intent().setAction(ACTION_DOZE));
-					}
-				}, 2000);
-				break;
-			case R.id.start_service:
-				if (SensorService.isRunning) {
-					Toast.makeText(this, R.string.service_already,
-							Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(this, R.string.service_started,
-							Toast.LENGTH_SHORT).show();
-					startService(
-							new Intent().setClass(this, SensorService.class));
-				}
-				break;
-			case R.id.reboot:
-				try {
-					RootShell.getShell(true).add(new Command(0, REBOOT));
-				} catch (IOException | TimeoutException
-						| RootDeniedException e) {
-					Toast.makeText(MainActivity.this, e.getMessage(),
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
-			case R.id.hot_reboot:
-				try {
-					RootShell.getShell(true).add(new Command(0, SOFT_REBOOT));
-				} catch (IOException | TimeoutException
-						| RootDeniedException e) {
-					Toast.makeText(MainActivity.this, e.getMessage(),
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
-			case R.id.info:
-				AlertDialog d = new AlertDialog.Builder(this)
-						.setPositiveButton(android.R.string.ok, null)
-						.setTitle(R.string.info).setMessage(R.string.about)
-						.create();
-				d.show();
+            SharedPreferences prefs = getActivity().getPreferences(Context.MODE_WORLD_READABLE);
 
-				((TextView) d.findViewById(android.R.id.message))
-						.setMovementMethod(LinkMovementMethod.getInstance());
+            //noinspection ConstantConditions
+            if (isEnabled()) {
+                getPreferenceScreen().removePreference(findPreference("not_enabled"));
+            }
 
-				break;
-		}
+            if (prefs.getBoolean("welcome", true)) {
+                new AlertDialog.Builder(getActivity())
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setTitle(R.string.info)
+                        .setMessage(R.string.aosp)
+                        .show();
 
-		return super.onOptionsItemSelected(item);
-	}
+                prefs.edit().putBoolean("welcome", false).apply();
+            }
 
-	@SuppressWarnings("unchecked")
-	public void set(String key, String val) {
-		try {
-			Class SystemProperties = Class
-					.forName("android.os.SystemProperties");
+        }
 
-			Method set = SystemProperties.getMethod("set", String.class,
-					String.class);
-			set.invoke(SystemProperties, key, val);
-		} catch (IllegalArgumentException | ClassNotFoundException
-				| NoSuchMethodException | IllegalAccessException
-				| InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        }
 
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		switch (key) {
-			case DOZE_BRIGHTNESS:
-			case DOZE_ALPHA:
-			case DOZE_IN:
-			case DOZE_OUT:
-			case DOZE_VISIBILTY:
-			case DOZE_RESETS:
-				Toast.makeText(this, R.string.reboot_required,
-						Toast.LENGTH_SHORT).show();
-				break;
-			case DOZE_PROXIMITY:
-				break;
-		}
-	}
+        @Override
+        @SuppressLint("SetWorldReadable")
+        public void onPause() {
+            super.onPause();
+            getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            File sharedPrefsDir = new File(getActivity().getFilesDir(), "../shared_prefs");
+            File sharedPrefsFile = new File(sharedPrefsDir, MainActivity.class.getSimpleName() + ".xml");
+            if (sharedPrefsFile.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                sharedPrefsFile.setReadable(true, false);
+            }
+        }
+
+        @Override
+        @SuppressLint("CommitPrefEdits")
+        public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+            Intent intent = new Intent();
+            switch (key) {
+                case DOZE_BRIGHTNESS:
+                case DOZE_ALPHA:
+                    Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
+                    break;
+                case DOZE_IN:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1000));
+                    break;
+                case DOZE_OUT:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1000));
+                    break;
+                case DOZE_VISIBILITY:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 3000));
+                    break;
+                case DOZE_RESETS:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1));
+                    break;
+                case DOZE_PROXIMITY:
+                    intent.setClass(getActivity(), SensorService.class);
+                    if (prefs.getBoolean(key, false)) {
+                        Toast.makeText(getActivity(), R.string.service_started, Toast.LENGTH_SHORT).show();
+                        getActivity().startService(intent);
+                    } else {
+                        Toast.makeText(getActivity(), R.string.service_stopped, Toast.LENGTH_SHORT).show();
+                        getActivity().stopService(intent);
+                    }
+                    updateMenuItem();
+            }
+
+            if (intent.getAction() != null) {
+                prefs.edit().commit();
+                getActivity().sendBroadcast(intent);
+            }
+        }
+    }
 }

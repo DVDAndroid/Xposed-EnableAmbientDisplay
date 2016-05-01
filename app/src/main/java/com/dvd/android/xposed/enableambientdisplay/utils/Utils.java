@@ -24,29 +24,44 @@
 
 package com.dvd.android.xposed.enableambientdisplay.utils;
 
-import android.content.Context;
-import android.preference.PreferenceManager;
+import static de.robv.android.xposed.XposedBridge.log;
 
 public class Utils {
 
 	public static final String ACTION_DOZE = "com.android.systemui.doze.pulse";
 	public static final String ACTION_SLEEP = "dvd.ACTION_SLEEP";
-	public static final String SYS_UI_PKG_NAME = "com.android.systemui";
-	public static final String THIS_PKG_NAME = "com.dvd.android.xposed.enableambientdisplay";
-	public static final String REBOOT = "reboot";
-	public static final String SOFT_REBOOT = "busybox killall system_server";
-	public static final String DOZE_SUPP = "doze_display_state_supported";
-	public static final String DOZE_PICK_UP = "doze_pulse_on_pick_up";
-	public static final String DOZE_IN = "doze_pulse_duration_in";
+    public static final String ACTION_PREFS_CHANGED = "dvd.ACTION_PREFS_CHANGED";
+    public static final String ACTION_HOT_REBOOT = "dvd.ACTION_HOT_REBOOT";
+    public static final String EXTRA_KEY = "dvd.EXTRA_KEY";
+    public static final String EXTRA_VALUE = "dvd.EXTRA_VALUE";
+
+    public static final String PACKAGE_SYSTEMUI = "com.android.systemui";
+    public static final String THIS_PKG_NAME = "com.dvd.android.xposed.enableambientdisplay";
+
+    public static final String DOZE_SUPP = "doze_display_state_supported";
+    public static final String DOZE_PICK_UP = "doze_pulse_on_pick_up";
+    public static final String DOZE_IN = "doze_pulse_duration_in";
 	public static final String DOZE_OUT = "doze_pulse_duration_out";
-	public static final String DOZE_VISIBILTY = "doze_pulse_duration_visible";
-	public static final String DOZE_ALPHA = "doze_small_icon_alpha";
-	public static final String DOZE_RESETS = "doze_pulse_schedule_resets";
+    public static final String DOZE_VISIBILITY = "doze_pulse_duration_visible";
+    public static final String DOZE_ALPHA = "doze_small_icon_alpha";
+    public static final String DOZE_RESETS = "doze_pulse_schedule_resets";
 	public static final String DOZE_PROXIMITY = "doze_proximity";
 	public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
 
-	public static boolean DEBUG(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context)
-				.getBoolean("debug", false);
-	}
+    private static final String LOG_FORMAT = "[Enable Ambient Display] %1$s %2$s: %3$s";
+    public static boolean debug = false;
+
+    public static void logD(String tag, String msg) {
+        if (debug) log(String.format(LOG_FORMAT, "[DEBUG]", tag, msg));
+    }
+
+    public static void logE(String tag, String msg, Throwable t) {
+        log(String.format(LOG_FORMAT, "[ERROR]", tag, msg));
+        if (t != null)
+            log(t);
+    }
+
+    public static void logW(String tag, String msg) {
+        log(String.format(LOG_FORMAT, "[WARNING]", tag, msg));
+    }
 }
