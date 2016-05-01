@@ -200,14 +200,12 @@ public class SystemUiHook {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
-                    logE(TAG, "mIconDarkAlpha1", null);
                 }
             });
             findAndHookMethod(notificationView, "updateIconAlpha", ImageView.class, boolean.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
-                    logE(TAG, "mIconDarkAlpha2", null);
                 }
             });
         } catch (Throwable t) {
