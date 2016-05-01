@@ -24,15 +24,15 @@
 
 package com.dvd.android.xposed.enableambientdisplay.services;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 import com.dvd.android.xposed.enableambientdisplay.MainActivity;
-import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
-import de.robv.android.xposed.XSharedPreferences;
-
+import static android.content.Context.MODE_WORLD_READABLE;
 import static com.dvd.android.xposed.enableambientdisplay.MainActivity.isEnabled;
 
 public class BootReceiver extends BroadcastReceiver {
@@ -40,13 +40,15 @@ public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, Intent intent) {
 		// noinspection ConstantConditions
-        if (isEnabled() && isSensorEnabled()) {
+        if (isEnabled() && isSensorEnabled(context)) {
             context.startService(new Intent(context, SensorService.class));
         }
 	}
 
-    private boolean isSensorEnabled() {
-        return new XSharedPreferences(Utils.THIS_PKG_NAME, MainActivity.class.getSimpleName()).getBoolean("doze_proximity", false);
+    @SuppressLint("WorldReadableFiles")
+    private boolean isSensorEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(MainActivity.class.getSimpleName(), MODE_WORLD_READABLE);
+        return prefs.getBoolean("doze_proximity", false);
     }
 
 }

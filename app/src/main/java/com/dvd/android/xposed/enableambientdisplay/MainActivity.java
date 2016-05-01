@@ -196,7 +196,6 @@ public class MainActivity extends Activity {
             Intent intent = new Intent();
             switch (key) {
                 case DOZE_BRIGHTNESS:
-                case DOZE_ALPHA:
                     Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
                     break;
                 case DOZE_IN:
@@ -218,6 +217,11 @@ public class MainActivity extends Activity {
                     intent.setAction(ACTION_PREFS_CHANGED);
                     intent.putExtra(EXTRA_KEY, key);
                     intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1));
+                    break;
+                case DOZE_ALPHA:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 222));
                     break;
                 case DOZE_PROXIMITY:
                     intent.setClass(getActivity(), SensorService.class);

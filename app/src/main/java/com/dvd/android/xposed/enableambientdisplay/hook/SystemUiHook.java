@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.widget.ImageView;
 
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
@@ -57,12 +58,14 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logE;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class SystemUiHook {
 
     private static final String TAG = "SystemUiHook";
     private static final String CLASS_DOZE_PARAMETERS_PATH = "com.android.systemui.statusbar.phone.DozeParameters";
     private static final String CLASS_KEYGUARD = "com.android.systemui.keyguard.KeyguardViewMediator";
+    private static final String CLASS_NOTIFICATION_VIEW = "com.android.systemui.statusbar.NotificationTemplateViewWrapper";
     private static Context sContext;
 
     private static int VALUE_DOZE_IN = 1000;
@@ -95,6 +98,9 @@ public class SystemUiHook {
                             break;
                         case DOZE_RESETS:
                             VALUE_DOZE_RESETS = intent.getIntExtra(EXTRA_VALUE, 1);
+                            break;
+                        case DOZE_ALPHA:
+                            VALUE_DOZE_ALPHA = intent.getIntExtra(EXTRA_VALUE, 222);
                             break;
                     }
                     break;
@@ -188,6 +194,22 @@ public class SystemUiHook {
                     param.setResult(VALUE_DOZE_RESETS);
                 }
             });
+
+            Class<?> notificationView = findClass(CLASS_NOTIFICATION_VIEW, classLoader);
+            findAndHookMethod(notificationView, "fadeIconAlpha", ImageView.class, boolean.class, long.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
+                    logE(TAG, "mIconDarkAlpha1", null);
+                }
+            });
+            findAndHookMethod(notificationView, "updateIconAlpha", ImageView.class, boolean.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
+                    logE(TAG, "mIconDarkAlpha2", null);
+                }
+            });
         } catch (Throwable t) {
             logE(TAG, t.getMessage(), t);
         }
@@ -196,9 +218,6 @@ public class SystemUiHook {
     public static void hookRes(XC_InitPackageResources.InitPackageResourcesParam resParam, XSharedPreferences prefs) {
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_SUPP, true);
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_PICK_UP, true);
-
-        initPrefs(prefs);
-        resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_ALPHA, VALUE_DOZE_ALPHA);
     }
 
     private static void initPrefs(XSharedPreferences prefs) {
