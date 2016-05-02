@@ -36,6 +36,8 @@ import android.widget.ImageView;
 
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
+import java.lang.reflect.Method;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
@@ -55,9 +57,11 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_KEY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_VALUE;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logD;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logE;
+import static de.robv.android.xposed.XposedBridge.hookMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class SystemUiHook {
@@ -154,27 +158,13 @@ public class SystemUiHook {
 
             initPrefs(prefs);
 
-            try {
-                findAndHookMethod(hookClass, "getPulseInDuration", boolean.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        param.setResult(VALUE_DOZE_IN);
-                    }
-                });
-            } catch (Exception e) {
-                // maybe a cyanogenmod rom?
-                try {
-                    findAndHookMethod(hookClass, "getPulseInDuration", int.class, new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            param.setResult(VALUE_DOZE_IN);
-                        }
-                    });
-                } catch (Exception e2) {
-                    logE(TAG, "Error: ", e);
-                    logE(TAG, "Error: ", e2);
-                }
-            }
+            Method pulseInAOSP = findMethodExactIfExists(hookClass, "getPulseInDuration", boolean.class);
+            Method pulseInCM = findMethodExactIfExists(hookClass, "getPulseInDuration", int.class);
+
+            if (pulseInAOSP != null)
+                hookPulseInMethod(pulseInAOSP);
+            if (pulseInCM != null)
+                hookPulseInMethod(pulseInCM);
 
             findAndHookMethod(hookClass, "getPulseVisibleDuration", new XC_MethodHook() {
                 @Override
@@ -211,6 +201,15 @@ public class SystemUiHook {
         } catch (Throwable t) {
             logE(TAG, t.getMessage(), t);
         }
+    }
+
+    private static void hookPulseInMethod(Method method) {
+        hookMethod(method, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult(VALUE_DOZE_IN);
+            }
+        });
     }
 
     public static void hookRes(XC_InitPackageResources.InitPackageResourcesParam resParam, XSharedPreferences prefs) {
