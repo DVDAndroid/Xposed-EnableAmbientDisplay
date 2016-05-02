@@ -158,9 +158,12 @@ public class SystemUiHook {
 
             initPrefs(prefs);
 
+            Method pulseInApi21 = findMethodExactIfExists(hookClass, "getPulseInDuration");
             Method pulseInAOSP = findMethodExactIfExists(hookClass, "getPulseInDuration", boolean.class);
             Method pulseInCM = findMethodExactIfExists(hookClass, "getPulseInDuration", int.class);
 
+            if (pulseInApi21 != null)
+                hookPulseInMethod(pulseInApi21);
             if (pulseInAOSP != null)
                 hookPulseInMethod(pulseInAOSP);
             if (pulseInCM != null)
@@ -185,19 +188,21 @@ public class SystemUiHook {
                 }
             });
 
-            Class<?> notificationView = findClass(CLASS_NOTIFICATION_VIEW, classLoader);
-            findAndHookMethod(notificationView, "fadeIconAlpha", ImageView.class, boolean.class, long.class, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
-                }
-            });
-            findAndHookMethod(notificationView, "updateIconAlpha", ImageView.class, boolean.class, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
-                }
-            });
+            if (Build.VERSION.SDK_INT >= 22) {
+                Class<?> notificationView = findClass(CLASS_NOTIFICATION_VIEW, classLoader);
+                findAndHookMethod(notificationView, "fadeIconAlpha", ImageView.class, boolean.class, long.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
+                    }
+                });
+                findAndHookMethod(notificationView, "updateIconAlpha", ImageView.class, boolean.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        setObjectField(param.thisObject, "mIconDarkAlpha", VALUE_DOZE_ALPHA);
+                    }
+                });
+            }
         } catch (Throwable t) {
             logE(TAG, t.getMessage(), t);
         }
@@ -215,6 +220,11 @@ public class SystemUiHook {
     public static void hookRes(XC_InitPackageResources.InitPackageResourcesParam resParam, XSharedPreferences prefs) {
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_SUPP, true);
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_PICK_UP, true);
+
+        if (Build.VERSION.SDK_INT < 22) {
+            initPrefs(prefs);
+            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_ALPHA, VALUE_DOZE_ALPHA);
+        }
     }
 
     private static void initPrefs(XSharedPreferences prefs) {
@@ -223,7 +233,7 @@ public class SystemUiHook {
         VALUE_DOZE_OUT = prefs.getInt(DOZE_OUT, 1000);
         VALUE_DOZE_VISIBILITY = prefs.getInt(DOZE_VISIBILITY, 3000);
         VALUE_DOZE_RESETS = prefs.getInt(DOZE_RESETS, 1);
-        VALUE_DOZE_ALPHA = prefs.getInt(DOZE_ALPHA, 1);
+        VALUE_DOZE_ALPHA = prefs.getInt(DOZE_ALPHA, 222);
     }
 
     private static void registerReceiver(final Context context) {

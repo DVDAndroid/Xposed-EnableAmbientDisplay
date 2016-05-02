@@ -30,6 +30,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceFragment;
@@ -219,9 +220,13 @@ public class MainActivity extends Activity {
                     intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1));
                     break;
                 case DOZE_ALPHA:
+                    if (Build.VERSION.SDK_INT >= 22) {
                     intent.setAction(ACTION_PREFS_CHANGED);
                     intent.putExtra(EXTRA_KEY, key);
-                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 222));
+                        intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 222));
+                    } else {
+                        Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case DOZE_PROXIMITY:
                     intent.setClass(getActivity(), SensorService.class);
