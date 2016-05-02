@@ -55,6 +55,7 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILITY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_WITH_POWER_KEY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_KEY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_VALUE;
 
@@ -221,12 +222,17 @@ public class MainActivity extends Activity {
                     break;
                 case DOZE_ALPHA:
                     if (Build.VERSION.SDK_INT >= 22) {
-                    intent.setAction(ACTION_PREFS_CHANGED);
-                    intent.putExtra(EXTRA_KEY, key);
+                        intent.setAction(ACTION_PREFS_CHANGED);
+                        intent.putExtra(EXTRA_KEY, key);
                         intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 222));
                     } else {
                         Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
                     }
+                    break;
+                case DOZE_WITH_POWER_KEY:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getBoolean(key, false));
                     break;
                 case DOZE_PROXIMITY:
                     intent.setClass(getActivity(), SensorService.class);

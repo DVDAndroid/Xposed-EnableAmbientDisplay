@@ -25,6 +25,7 @@
 package com.dvd.android.xposed.enableambientdisplay;
 
 
+import com.dvd.android.xposed.enableambientdisplay.hook.AndroidHook;
 import com.dvd.android.xposed.enableambientdisplay.hook.SystemUiHook;
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
@@ -73,12 +74,19 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage,
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        if (lpparam.packageName.equals(PACKAGE_SYSTEMUI)) {
-            logD(TAG, "Hooking SystemUI");
-            SystemUiHook.hook(lpparam.classLoader, sPrefs);
-        } else if (lpparam.packageName.equals(THIS_PKG_NAME)) {
-            logD(TAG, "Hooking this module");
-            findAndHookMethod(THIS_PKG_NAME + ".MainActivity", lpparam.classLoader, "isEnabled", XC_MethodReplacement.returnConstant(true));
+        switch (lpparam.packageName) {
+            case PACKAGE_SYSTEMUI:
+                logD(TAG, "Hooking SystemUI");
+                SystemUiHook.hook(lpparam.classLoader, sPrefs);
+                break;
+            case Utils.PACKAGE_ANDROID:
+                logD(TAG, "Hooking Android package");
+                AndroidHook.hook(lpparam.classLoader, sPrefs);
+                break;
+            case THIS_PKG_NAME:
+                logD(TAG, "Hooking this module");
+                findAndHookMethod(THIS_PKG_NAME + ".MainActivity", lpparam.classLoader, "isEnabled", XC_MethodReplacement.returnConstant(true));
+                break;
         }
     }
 

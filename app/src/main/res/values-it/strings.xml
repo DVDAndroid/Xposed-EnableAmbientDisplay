@@ -54,5 +54,8 @@
     <string name="about">Modulo creato da <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nCodice sorgente disponibile su <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
     <string name="service_stopped">Servizio stoppato</string>
     <string name="stop_service">Stop servizio</string>
+    <string name="doze_no_power_key">Il dispositivo si accenderà normalmente</string>
+    <string name="doze_on_power_key">Invece di accendere il dispositivo, verrà visualizzato Ambient Display</string>
+    <string name="doze_power_key">Doze al click del tasto di spegnimento</string>
 
 </resources>

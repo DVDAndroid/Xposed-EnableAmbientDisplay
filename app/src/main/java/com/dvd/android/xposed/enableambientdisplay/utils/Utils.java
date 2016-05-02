@@ -36,6 +36,7 @@ public class Utils {
     public static final String EXTRA_VALUE = "dvd.EXTRA_VALUE";
 
     public static final String PACKAGE_SYSTEMUI = "com.android.systemui";
+    public static final String PACKAGE_ANDROID = "android";
     public static final String THIS_PKG_NAME = "com.dvd.android.xposed.enableambientdisplay";
 
     public static final String DOZE_SUPP = "doze_display_state_supported";
@@ -47,6 +48,7 @@ public class Utils {
     public static final String DOZE_RESETS = "doze_pulse_schedule_resets";
 	public static final String DOZE_PROXIMITY = "doze_proximity";
 	public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
+    public static final String DOZE_WITH_POWER_KEY = "doze_power_key";
 
     private static final String LOG_FORMAT = "[Enable Ambient Display] %1$s %2$s: %3$s";
     public static boolean debug = false;

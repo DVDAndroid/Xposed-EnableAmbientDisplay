@@ -53,5 +53,8 @@
     <string name="about">Module created by <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nSource code available at <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
     <string name="service_stopped">Service stopped</string>
     <string name="stop_service">Stop service</string>
+    <string name="doze_power_key">Doze on power key click</string>
+    <string name="doze_on_power_key">Instead of wake up device, it will appear Ambient Display</string>
+    <string name="doze_no_power_key">Device will wake up normally</string>
 
 </resources>

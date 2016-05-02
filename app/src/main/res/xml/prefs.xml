@@ -93,6 +93,13 @@
             android:summaryOn="@string/doze_will_pulse"
             android:title="@string/doze_proximity"/>
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="doze_power_key"
+            android:summaryOff="@string/doze_no_power_key"
+            android:summaryOn="@string/doze_on_power_key"
+            android:title="@string/doze_power_key"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/notes">
