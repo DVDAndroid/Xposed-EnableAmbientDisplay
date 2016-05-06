@@ -57,5 +57,6 @@
     <string name="doze_no_power_key">Il dispositivo si accenderà normalmente</string>
     <string name="doze_on_power_key">Invece di accendere il dispositivo, verrà visualizzato Ambient Display</string>
     <string name="doze_power_key">Doze al click del tasto di spegnimento</string>
+    <string name="doze_pulse_schedule">Quando pulsare dopo l\'arrivo di una notifica</string>
 
 </resources>

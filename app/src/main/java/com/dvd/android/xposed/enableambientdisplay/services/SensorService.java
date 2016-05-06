@@ -98,7 +98,8 @@ public class SensorService extends Service
 	@Override
 	public void onDestroy() {
 		isRunning = false;
-		mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        mContext.unregisterReceiver(mScreenStateReceiver);
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 
 		super.onDestroy();
 	}

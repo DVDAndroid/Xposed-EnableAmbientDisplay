@@ -34,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +54,7 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGH
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PROXIMITY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PULSE_SCHEDULE;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILITY;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_WITH_POWER_KEY;
@@ -67,11 +69,14 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    private static void updateMenuItem() {
+    private static void updateMenuItem(boolean enabled) {
+        if (mServiceItem == null) return;
+
+        mServiceItem.setVisible(enabled);
+
         new android.os.Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (mServiceItem != null)
                     mServiceItem.setTitle(SensorService.isRunning() ? R.string.stop_service : R.string.start_service);
             }
         }, 500);
@@ -86,11 +91,15 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    @SuppressLint("WorldReadableFiles")
+    @SuppressWarnings("deprecation")
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
 
         mServiceItem = menu.findItem(R.id.service);
-        updateMenuItem();
+
+        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_WORLD_READABLE);
+        updateMenuItem(prefs.getBoolean(DOZE_PROXIMITY, false));
 
         //noinspection ConstantConditions
         if (!isEnabled())
@@ -120,7 +129,7 @@ public class MainActivity extends Activity {
                     Toast.makeText(this, R.string.service_started, Toast.LENGTH_SHORT).show();
                     startService(service);
                 }
-                updateMenuItem();
+                updateMenuItem(true);
                 break;
             case R.id.hot_reboot:
                 sendBroadcast(new Intent(ACTION_HOT_REBOOT));
@@ -169,6 +178,12 @@ public class MainActivity extends Activity {
                         .show();
 
                 prefs.edit().putBoolean("welcome", false).apply();
+            }
+
+            if (Build.VERSION.SDK_INT == 21) {
+                SwitchPreference p = (SwitchPreference) findPreference("doze_power_key");
+                p.setSummaryOff("Lollipop 5.1+");
+                p.setEnabled(false);
             }
 
         }
@@ -234,16 +249,23 @@ public class MainActivity extends Activity {
                     intent.putExtra(EXTRA_KEY, key);
                     intent.putExtra(EXTRA_VALUE, prefs.getBoolean(key, false));
                     break;
+                case DOZE_PULSE_SCHEDULE:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getString(key, "10s,30s,60s"));
+                    break;
                 case DOZE_PROXIMITY:
                     intent.setClass(getActivity(), SensorService.class);
                     if (prefs.getBoolean(key, false)) {
                         Toast.makeText(getActivity(), R.string.service_started, Toast.LENGTH_SHORT).show();
                         getActivity().startService(intent);
                     } else {
-                        Toast.makeText(getActivity(), R.string.service_stopped, Toast.LENGTH_SHORT).show();
-                        getActivity().stopService(intent);
+                        if (SensorService.isRunning()) {
+                            Toast.makeText(getActivity(), R.string.service_stopped, Toast.LENGTH_SHORT).show();
+                            getActivity().stopService(intent);
+                        }
                     }
-                    updateMenuItem();
+                    updateMenuItem(prefs.getBoolean(key, false));
             }
 
             if (intent.getAction() != null) {

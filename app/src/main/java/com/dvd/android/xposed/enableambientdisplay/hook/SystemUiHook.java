@@ -50,6 +50,7 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_ALPHA
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_IN;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_OUT;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PICK_UP;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_PULSE_SCHEDULE;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_RESETS;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_SUPP;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_VISIBILITY;
@@ -58,6 +59,7 @@ import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.EXTRA_VALU
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logD;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logE;
 import static de.robv.android.xposed.XposedBridge.hookMethod;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
@@ -77,6 +79,7 @@ public class SystemUiHook {
     private static int VALUE_DOZE_VISIBILITY = 3000;
     private static int VALUE_DOZE_RESETS = 1;
     private static int VALUE_DOZE_ALPHA = 222;
+    private static String VALUE_DOZE_PULSE_SCHEDULE = "10s,30s,60s";
 
     private static BroadcastReceiver sPrefsChange = new BroadcastReceiver() {
         @Override
@@ -105,6 +108,8 @@ public class SystemUiHook {
                             break;
                         case DOZE_ALPHA:
                             VALUE_DOZE_ALPHA = intent.getIntExtra(EXTRA_VALUE, 222);
+                        case DOZE_PULSE_SCHEDULE:
+                            VALUE_DOZE_PULSE_SCHEDULE = intent.getStringExtra(EXTRA_VALUE);
                             break;
                     }
                     break;
@@ -113,7 +118,7 @@ public class SystemUiHook {
                     try {
                         PowerManager powerManager = (PowerManager) sContext.getSystemService(Context.POWER_SERVICE);
 
-                        XposedHelpers.callMethod(powerManager, "goToSleep", SystemClock.uptimeMillis());
+                        callMethod(powerManager, "goToSleep", SystemClock.uptimeMillis());
                     } catch (Throwable t) {
                         logE(TAG, t.getMessage(), t);
                     }
@@ -126,7 +131,7 @@ public class SystemUiHook {
                         Class<?> classIpm = findClass("android.os.IPowerManager.Stub", null);
                         IBinder b = (IBinder) callStaticMethod(classSm, "getService", Context.POWER_SERVICE);
                         Object ipm = callStaticMethod(classIpm, "asInterface", b);
-                        XposedHelpers.callMethod(ipm, "crash", "Hot reboot");
+                        callMethod(ipm, "crash", "Hot reboot");
                     } catch (Throwable t) {
                         try {
                             SystemProp.set("ctl.restart", "surfaceflinger");
@@ -140,7 +145,7 @@ public class SystemUiHook {
         }
     };
 
-    public static void hook(ClassLoader classLoader, XSharedPreferences prefs) {
+    public static void hook(final ClassLoader classLoader, XSharedPreferences prefs) {
         try {
             Class<?> keyguardClass = XposedHelpers.findClass(CLASS_KEYGUARD, classLoader);
 
@@ -154,7 +159,7 @@ public class SystemUiHook {
                 }
             });
 
-            Class<?> hookClass = findClass(CLASS_DOZE_PARAMETERS_PATH, classLoader);
+            final Class<?> hookClass = findClass(CLASS_DOZE_PARAMETERS_PATH, classLoader);
 
             initPrefs(prefs);
 
@@ -185,6 +190,16 @@ public class SystemUiHook {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     param.setResult(VALUE_DOZE_RESETS);
+                }
+            });
+
+            final Class<?> pulseSchedule = findClass(CLASS_DOZE_PARAMETERS_PATH + "$PulseSchedule", classLoader);
+            findAndHookMethod(hookClass, "getPulseSchedule", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+
+                    param.setResult(callMethod(pulseSchedule.newInstance(), "parse", VALUE_DOZE_PULSE_SCHEDULE));
                 }
             });
 
@@ -234,6 +249,7 @@ public class SystemUiHook {
         VALUE_DOZE_VISIBILITY = prefs.getInt(DOZE_VISIBILITY, 3000);
         VALUE_DOZE_RESETS = prefs.getInt(DOZE_RESETS, 1);
         VALUE_DOZE_ALPHA = prefs.getInt(DOZE_ALPHA, 222);
+        VALUE_DOZE_PULSE_SCHEDULE = prefs.getString(DOZE_PULSE_SCHEDULE, "10s,30s,60s");
     }
 
     private static void registerReceiver(final Context context) {

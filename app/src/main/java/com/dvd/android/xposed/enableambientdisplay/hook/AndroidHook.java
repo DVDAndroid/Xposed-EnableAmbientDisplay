@@ -52,14 +52,11 @@ public class AndroidHook {
     private static boolean POWER_KEY_OVERWRITE = false;
 
     public static void hook(ClassLoader classLoader, final XSharedPreferences prefs) {
-        switch (Build.VERSION.SDK_INT) {
-            case 21:
-                /*
-                findAndHookMethod(CLASS_PHONE_WINDOW_MANAGER, classLoader, "interceptPowerKeyDown", boolean.class, ...);
-                */
-                break;
-            case 22:
-                findAndHookMethod(CLASS_PHONE_WINDOW_MANAGER, classLoader, "wakeUpFromPowerKey", long.class, new XC_MethodReplacement() {
+        if (Build.VERSION.SDK_INT == 21) return;
+
+        String hookClass = Build.VERSION.SDK_INT >= 23 ? CLASS_PHONE_WINDOW_MANAGER_23 : CLASS_PHONE_WINDOW_MANAGER;
+
+        findAndHookMethod(hookClass, classLoader, "wakeUpFromPowerKey", long.class, new XC_MethodReplacement() {
                     @Override
                     protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
 
@@ -69,21 +66,7 @@ public class AndroidHook {
                         sendAction(mContext, param, prefs);
                         return null;
                     }
-                });
-                break;
-            case 23:
-                findAndHookMethod(CLASS_PHONE_WINDOW_MANAGER_23, classLoader, "wakeUpFromPowerKey", long.class, new XC_MethodReplacement() {
-                    @Override
-                    protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                        Context mContext = (Context) getObjectField(param.thisObject, "mContext");
-                        registerReceiver(mContext);
-
-                        sendAction(mContext, param, prefs);
-                        return null;
-                    }
-                });
-                break;
-        }
+        });
     }
 
     private static void registerReceiver(final Context context) {

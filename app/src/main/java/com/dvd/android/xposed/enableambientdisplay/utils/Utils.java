@@ -46,8 +46,9 @@ public class Utils {
     public static final String DOZE_VISIBILITY = "doze_pulse_duration_visible";
     public static final String DOZE_ALPHA = "doze_small_icon_alpha";
     public static final String DOZE_RESETS = "doze_pulse_schedule_resets";
-	public static final String DOZE_PROXIMITY = "doze_proximity";
-	public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
+    public static final String DOZE_PULSE_SCHEDULE = "doze_pulse_schedule";
+    public static final String DOZE_PROXIMITY = "doze_proximity";
+    public static final String DOZE_BRIGHTNESS = "config_screenBrightnessDoze";
     public static final String DOZE_WITH_POWER_KEY = "doze_power_key";
 
     private static final String LOG_FORMAT = "[Enable Ambient Display] %1$s %2$s: %3$s";
