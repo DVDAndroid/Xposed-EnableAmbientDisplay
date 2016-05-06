@@ -8,6 +8,11 @@ Easy Xposed module for Lollipop which add Ambient Display
 <img src="https://github.com/DVDAndroid/Xposed-EnableAmbientDisplay/blob/master/screenshots/ambient-display.png"/>
 
 
+Forum
+-----
+
+[XDA](http://forum.xda-developers.com/xposed/modules/enable-ambient-display-xposed-t3031347)
+
 Credits
 -------
 
