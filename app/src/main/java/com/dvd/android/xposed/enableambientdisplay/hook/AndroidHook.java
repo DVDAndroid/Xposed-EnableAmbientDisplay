@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.PowerManager;
+import android.provider.Settings;
 
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
@@ -88,9 +89,10 @@ public class AndroidHook {
         PowerManager mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 
         if (POWER_KEY_OVERWRITE) {
-            if (mPowerManager.isPowerSaveMode()) {
+            int value = Settings.Secure.getInt(context.getContentResolver(), "doze_enabled", 1);
+            if (mPowerManager.isPowerSaveMode() || value == 0) {
                 invokeOriginalMethod(param.method, param.thisObject, param.args);
-                Utils.logD(TAG, "Cannot doze. Power saving mode on");
+                Utils.logD(TAG, "Cannot doze.");
             } else {
                 context.sendBroadcast(new Intent(Utils.ACTION_DOZE));
                 Utils.logD(TAG, "Device turned up. Dozing");
