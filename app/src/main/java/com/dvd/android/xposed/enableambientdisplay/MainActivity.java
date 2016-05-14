@@ -34,7 +34,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -98,12 +97,15 @@ public class MainActivity extends Activity {
 
         mServiceItem = menu.findItem(R.id.service);
 
-        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_WORLD_READABLE);
-        updateMenuItem(prefs.getBoolean(DOZE_PROXIMITY, false));
 
         //noinspection ConstantConditions
-        if (!isEnabled())
+        if (!isEnabled()) {
             menu.removeItem(R.id.hot_reboot);
+            menu.removeItem(R.id.service);
+        } else {
+            SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_WORLD_READABLE);
+            updateMenuItem(prefs.getBoolean(DOZE_PROXIMITY, false));
+        }
         return true;
     }
 
@@ -180,12 +182,6 @@ public class MainActivity extends Activity {
                 prefs.edit().putBoolean("welcome", false).apply();
             }
 
-            if (Build.VERSION.SDK_INT == 21) {
-                SwitchPreference p = (SwitchPreference) findPreference("doze_power_key");
-                p.setSummaryOff("Lollipop 5.1+");
-                p.setEnabled(false);
-            }
-
         }
 
         @Override
@@ -256,7 +252,8 @@ public class MainActivity extends Activity {
                     break;
                 case DOZE_PROXIMITY:
                     intent.setClass(getActivity(), SensorService.class);
-                    if (prefs.getBoolean(key, false)) {
+                    //noinspection ConstantConditions
+                    if (prefs.getBoolean(key, false) && isEnabled()) {
                         Toast.makeText(getActivity(), R.string.service_started, Toast.LENGTH_SHORT).show();
                         getActivity().startService(intent);
                     } else {

@@ -57,5 +57,6 @@
     <string name="doze_on_power_key">Instead of wake up device, it will appear Ambient Display</string>
     <string name="doze_no_power_key">Device will wake up normally</string>
     <string name="doze_pulse_schedule">When to pulse after a buzzworthy notification arrives</string>
+    <string name="extra">Extras</string>
 
 </resources>

@@ -97,7 +97,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/doze_proximity">
+    <PreferenceCategory android:title="@string/extra">
 
         <SwitchPreference
             android:defaultValue="false"

@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.view.KeyEvent;
 
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
@@ -40,7 +41,11 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 
+import static android.view.KeyEvent.KEYCODE_HOME;
+import static android.view.KeyEvent.KEYCODE_POWER;
+import static android.view.KeyEvent.KEYCODE_WAKEUP;
 import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_WITH_POWER_KEY;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logD;
 import static de.robv.android.xposed.XposedBridge.invokeOriginalMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
@@ -53,20 +58,41 @@ public class AndroidHook {
     private static boolean POWER_KEY_OVERWRITE = false;
 
     public static void hook(ClassLoader classLoader, final XSharedPreferences prefs) {
-        if (Build.VERSION.SDK_INT == 21) return;
-
         String hookClass = Build.VERSION.SDK_INT >= 23 ? CLASS_PHONE_WINDOW_MANAGER_23 : CLASS_PHONE_WINDOW_MANAGER;
 
+        findAndHookMethod(hookClass, classLoader, "interceptKeyBeforeQueueing", KeyEvent.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                KeyEvent event = (KeyEvent) param.args[0];
+                Context mContext = (Context) getObjectField(param.thisObject, "mContext");
+
+                int keyCode = event.getKeyCode();
+                boolean power = Build.VERSION.SDK_INT < 23 && keyCode == KEYCODE_POWER;
+                boolean interactive = ((int) param.args[1] & 0x20000000) != 0;
+
+                logD(TAG, "Interactive: " + interactive);
+                logD(TAG, "power: " + power);
+                logD(TAG, "keyCode: " + keyCode);
+
+                if (!interactive && (keyCode == KEYCODE_HOME || keyCode == KEYCODE_WAKEUP || power)) {
+                    sendAction(mContext, param, prefs);
+
+                    param.setResult(-1);
+                }
+            }
+        });
+
+        if (Build.VERSION.SDK_INT < 23) return;
+
         findAndHookMethod(hookClass, classLoader, "wakeUpFromPowerKey", long.class, new XC_MethodReplacement() {
-                    @Override
-                    protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                Context mContext = (Context) getObjectField(param.thisObject, "mContext");
+                registerReceiver(mContext);
 
-                        Context mContext = (Context) getObjectField(param.thisObject, "mContext");
-                        registerReceiver(mContext);
-
-                        sendAction(mContext, param, prefs);
-                        return null;
-                    }
+                sendAction(mContext, param, prefs);
+                return null;
+            }
         });
     }
 
