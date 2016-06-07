@@ -224,33 +224,21 @@ public class SystemUiHook {
     }
 
     private static void hookPulseInMethod(Method method) {
-        if (!Utils.isSamsung()) {
-            hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    param.setResult(VALUE_DOZE_IN);
-                }
-            });
-        }
+        hookMethod(method, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult(VALUE_DOZE_IN);
+            }
+        });
     }
 
     public static void hookRes(XC_InitPackageResources.InitPackageResourcesParam resParam, XSharedPreferences prefs) {
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_SUPP, true);
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_PICK_UP, true);
 
-        initPrefs(prefs);
-
         if (Build.VERSION.SDK_INT < 22) {
+            initPrefs(prefs);
             resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_ALPHA, VALUE_DOZE_ALPHA);
-        }
-
-        if (Utils.isSamsung()) {
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_IN, VALUE_DOZE_IN);
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_OUT, VALUE_DOZE_OUT);
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_VISIBILITY, VALUE_DOZE_VISIBILITY);
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_RESETS, VALUE_DOZE_RESETS);
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_ALPHA, VALUE_DOZE_ALPHA);
-            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "integer", DOZE_PULSE_SCHEDULE, VALUE_DOZE_PULSE_SCHEDULE);
         }
     }
 

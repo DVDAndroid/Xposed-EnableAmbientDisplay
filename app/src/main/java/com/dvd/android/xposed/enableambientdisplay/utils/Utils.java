@@ -24,8 +24,6 @@
 
 package com.dvd.android.xposed.enableambientdisplay.utils;
 
-import java.io.File;
-
 import static de.robv.android.xposed.XposedBridge.log;
 
 public class Utils {
@@ -68,9 +66,5 @@ public class Utils {
 
     public static void logW(String tag, String msg) {
         log(String.format(LOG_FORMAT, "[WARNING]", tag, msg));
-    }
-
-    public static boolean isSamsung() {
-        return new File("/system/framework/twframework.jar").isFile();
     }
 }

@@ -32,7 +32,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 17
-        versionName '1.99 - RC 4'
+        versionName '1.99 - RC 3'
     }
     buildTypes {
         release {

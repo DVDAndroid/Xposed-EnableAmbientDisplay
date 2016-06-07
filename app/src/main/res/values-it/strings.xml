@@ -59,7 +59,5 @@
     <string name="doze_power_key">Doze al click del tasto di spegnimento</string>
     <string name="doze_pulse_schedule">Quando pulsare dopo l\'arrivo di una notifica</string>
     <string name="extra">Extra</string>
-    <string name="caution">Attenzione!</string>
-    <string name="caution_power_key">Il dispositivo non si può accendere più se qualcosa va storto. Per evitare ciò, impostare un altro metodo che faccia risvegliare il dispositivo (risveglio con i tasti del volume per esempio).\n\nSe non si effettuano precauzioni e qualcosa va storto, occorre disabilitare o disinstallare xposed.</string>
 
 </resources>

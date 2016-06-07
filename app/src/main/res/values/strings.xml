@@ -58,7 +58,5 @@
     <string name="doze_no_power_key">Device will wake up normally</string>
     <string name="doze_pulse_schedule">When to pulse after a buzzworthy notification arrives</string>
     <string name="extra">Extras</string>
-    <string name="caution">Caution!</string>
-    <string name="caution_power_key">The device can not turn over if something goes wrong. To avoid this, set another method that makes the device awake (waking up with the volume keys for example).\n\nIf no precautions are made and something goes wrong, you have to disable or uninstall Xposed.</string>
 
 </resources>

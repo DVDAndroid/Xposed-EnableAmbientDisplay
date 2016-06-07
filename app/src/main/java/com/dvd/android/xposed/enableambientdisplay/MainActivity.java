@@ -41,7 +41,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dvd.android.xposed.enableambientdisplay.services.SensorService;
-import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
 import java.io.File;
 
@@ -155,10 +154,6 @@ public class MainActivity extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-        private Intent mIntent;
-        private SharedPreferences mPrefs;
-        private String mKey;
-
         @Override
         @SuppressLint("CommitPrefEdits")
         @SuppressWarnings("deprecation")
@@ -208,105 +203,72 @@ public class MainActivity extends Activity {
             }
         }
 
-
         @Override
         @SuppressLint("CommitPrefEdits")
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-            mIntent = new Intent();
-            mPrefs = prefs;
-            mKey = key;
-
+            Intent intent = new Intent();
             switch (key) {
                 case DOZE_BRIGHTNESS:
                     Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
                     break;
                 case DOZE_IN:
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1000));
+                    break;
                 case DOZE_OUT:
-                    if (Utils.isSamsung()) {
-                        Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        updateIntent(1000);
-                    }
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1000));
                     break;
                 case DOZE_VISIBILITY:
-                    if (Utils.isSamsung()) {
-                        Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        updateIntent(3000);
-                    }
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 3000));
                     break;
                 case DOZE_RESETS:
-                    if (Utils.isSamsung()) {
-                        Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        updateIntent(1);
-                    }
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 1));
                     break;
                 case DOZE_ALPHA:
                     if (Build.VERSION.SDK_INT >= 22) {
-                        if (Utils.isSamsung()) {
-                            Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
-                            return;
-                        } else {
-                            updateIntent(222);
-                        }
+                        intent.setAction(ACTION_PREFS_CHANGED);
+                        intent.putExtra(EXTRA_KEY, key);
+                        intent.putExtra(EXTRA_VALUE, prefs.getInt(key, 222));
                     } else {
                         Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case DOZE_WITH_POWER_KEY:
-                    updateIntent(false);
-
-                    if (mPrefs.getBoolean(mKey + "_warning", true)) {
-                        new AlertDialog.Builder(getActivity()).setTitle(R.string.caution)
-                                .setMessage(R.string.caution_power_key)
-                                .setPositiveButton(android.R.string.ok, null).show();
-
-                        mPrefs.edit().putBoolean(mKey + "_warning", false).apply();
-                    }
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getBoolean(key, false));
                     break;
                 case DOZE_PULSE_SCHEDULE:
-                    if (Utils.isSamsung()) {
-                        Toast.makeText(getActivity(), R.string.reboot_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        updateIntent("10s,30s,60s");
-                    }
+                    intent.setAction(ACTION_PREFS_CHANGED);
+                    intent.putExtra(EXTRA_KEY, key);
+                    intent.putExtra(EXTRA_VALUE, prefs.getString(key, "10s,30s,60s"));
                     break;
                 case DOZE_PROXIMITY:
-                    mIntent.setClass(getActivity(), SensorService.class);
-
+                    intent.setClass(getActivity(), SensorService.class);
                     //noinspection ConstantConditions
                     if (prefs.getBoolean(key, false) && isEnabled()) {
                         Toast.makeText(getActivity(), R.string.service_started, Toast.LENGTH_SHORT).show();
-                        getActivity().startService(mIntent);
+                        getActivity().startService(intent);
                     } else {
                         if (SensorService.isRunning()) {
                             Toast.makeText(getActivity(), R.string.service_stopped, Toast.LENGTH_SHORT).show();
-                            getActivity().stopService(mIntent);
+                            getActivity().stopService(intent);
                         }
                     }
                     updateMenuItem(prefs.getBoolean(key, false));
             }
 
-            if (mIntent.getAction() != null) {
+            if (intent.getAction() != null) {
                 prefs.edit().commit();
-                getActivity().sendBroadcast(mIntent);
+                getActivity().sendBroadcast(intent);
             }
-        }
-
-        private void updateIntent(Object defaultValue) {
-            mIntent.setAction(ACTION_PREFS_CHANGED);
-            mIntent.putExtra(EXTRA_KEY, mKey);
-            if (defaultValue instanceof Boolean)
-                mIntent.putExtra(EXTRA_VALUE, mPrefs.getBoolean(mKey, (Boolean) defaultValue));
-            if (defaultValue instanceof String)
-                mIntent.putExtra(EXTRA_VALUE, mPrefs.getString(mKey, (String) defaultValue));
-            if (defaultValue instanceof Integer)
-                mIntent.putExtra(EXTRA_VALUE, mPrefs.getInt(mKey, (int) defaultValue));
         }
     }
 }
