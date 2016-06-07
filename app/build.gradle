@@ -31,8 +31,8 @@ android {
         applicationId "com.dvd.android.xposed.enableambientdisplay"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 17
-        versionName '1.99 - RC 3'
+        versionCode 18
+        versionName '1.99 - RC 4'
     }
     buildTypes {
         release {
