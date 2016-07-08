@@ -28,16 +28,38 @@
     <string name="xposed_descr">Semplice modulo Xposed che aggiunge Ambient Display</string>
 
     <string name="config_screenBrightnessDoze">Luminosità dello schermo usata per oscurare lo schermo</string>
-    <string name="doze_pulse_duration_in">Quanto tempo ci vuole per accendersi? (ms)</string>
-    <string name="doze_pulse_duration_out">Quanto tempo ci vuole per spegnersi? (ms)</string>
-    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo ci vuole rimanere acceso? (ms)</string>
-    <string name="doze_small_icon_alpha">Opacità da applcare alle piccole icone durante il dozing</string>
-    <string name="warning_battery">Un valore più elevato determina un maggiore utilizzo di batteria</string>
-    <string name="warning_visibility">Un valore inferiore oscura l\'icona</string>
+    <string name="doze_pulse_duration_in">Quanto tempo serve per accendersi?</string>
+    <string name="doze_pulse_duration_out">Quanto tempo serve per spegnersi?</string>
+    <string name="doze_pulse_duration_visible">Una volta acceso, quanto tempo serve rimanere acceso?</string>
+    <string name="doze_small_icon_alpha">Opacità da applicare alle piccole icone durante il dozing</string>
+    <string name="warning_battery">Un valore più elevato di luminosità determina un maggiore utilizzo di batteria</string>
+    <string name="warning_visibility">Un valore inferiore di opacità oscura l\'icona</string>
     <string name="hot_reboot">Riavvio veloce</string>
     <string name="reboot">Riavvio</string>
     <string name="time_settings">Impostazioni del tempo</string>
     <string name="reboot_required">Riavvio richiesto</string>
     <string name="doze_pulse_schedule_resets">Numero massimo di volte che lo schermo si accenderà</string>
     <string name="customizations">Personalizzazioni</string>
+    <string name="notes">Note</string>
+    <string name="testIt">Fai un test</string>
+    <string name="module_not_enabled">Modulo non abilitato</string>
+    <string name="doze_proximity">Attivare doze con sensore di prossimità</string>
+    <string name="doze_not_pulse">Doze con sensore di prossimità è disabilitato</string>
+    <string name="doze_will_pulse">Doze con sensore di prossimità è abilitato</string>
+    <string name="start_service">Avvia servizio</string>
+    <string name="service_started">Servizio partito</string>
+    <string name="info">Info</string>
+    <string name="def">Default</string>
+    <string name="aosp">Questo modulo funziona con Google stock/AOSP-basate rom.\nSe hai un telefono Samsung o LG, prova questo modulo; se funziona, ok; se non funziona non posso fare niente</string>
+    <string name="about">Modulo creato da <a href="http://github.com/dvdandroid">dvdandroid</a>\n\nCodice sorgente disponibile su <a href="http://github.com/dvdandroid/Xposed-EnableAmbientDisplay">GitHub</a></string>
+    <string name="service_stopped">Servizio stoppato</string>
+    <string name="stop_service">Stop servizio</string>
+    <string name="doze_no_power_key">Il dispositivo si accenderà normalmente</string>
+    <string name="doze_on_power_key">Invece di accendere il dispositivo, verrà visualizzato Ambient Display</string>
+    <string name="doze_power_key">Doze al click del tasto di spegnimento</string>
+    <string name="doze_pulse_schedule">Quando pulsare dopo l\'arrivo di una notifica</string>
+    <string name="extra">Extra</string>
+    <string name="caution">Attenzione!</string>
+    <string name="caution_power_key">Il dispositivo non si può accendere più se qualcosa va storto. Per evitare ciò, impostare un altro metodo che faccia risvegliare il dispositivo (risveglio con i tasti del volume per esempio).\n\nSe non si effettuano precauzioni e qualcosa va storto, occorre disabilitare o disinstallare xposed.</string>
+
 </resources>

@@ -22,23 +22,33 @@
  * SOFTWARE.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.dvd.android.xposed.enableambientdisplay.services;
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        //noinspection GradleDependency
-        classpath 'com.android.tools.build:gradle:2.0.0'
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+import com.dvd.android.xposed.enableambientdisplay.MainActivity;
 
-allprojects {
-    repositories {
-        jcenter()
+import static android.content.Context.MODE_WORLD_READABLE;
+import static com.dvd.android.xposed.enableambientdisplay.MainActivity.isEnabled;
+
+public class BootReceiver extends BroadcastReceiver {
+
+	@Override
+	public void onReceive(final Context context, Intent intent) {
+		// noinspection ConstantConditions
+        if (isEnabled() && isSensorEnabled(context)) {
+            context.startService(new Intent(context, SensorService.class));
+        }
+	}
+
+    @SuppressLint("WorldReadableFiles")
+    private boolean isSensorEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(MainActivity.class.getSimpleName(), MODE_WORLD_READABLE);
+        return prefs.getBoolean("doze_proximity", false);
     }
+
 }

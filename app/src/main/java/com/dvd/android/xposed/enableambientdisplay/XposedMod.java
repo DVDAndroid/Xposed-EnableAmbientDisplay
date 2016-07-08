@@ -24,75 +24,77 @@
 
 package com.dvd.android.xposed.enableambientdisplay;
 
-import android.content.res.XResources;
+
+import com.dvd.android.xposed.enableambientdisplay.hook.AndroidHook;
+import com.dvd.android.xposed.enableambientdisplay.hook.SystemUiHook;
+import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
+import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class XposedMod implements IXposedHookInitPackageResources,
-		IXposedHookZygoteInit {
+import static android.content.res.XResources.setSystemWideReplacement;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.DOZE_BRIGHTNESS;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.PACKAGE_SYSTEMUI;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.THIS_PKG_NAME;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logD;
+import static com.dvd.android.xposed.enableambientdisplay.utils.Utils.logW;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-	XSharedPreferences prefs;
+public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
-	@Override
-	public void initZygote(IXposedHookZygoteInit.StartupParam startupParam)
-			throws Throwable {
+    private static final String TAG = "XposedMod";
+    private static XSharedPreferences sPrefs;
 
-		prefs = new XSharedPreferences(MainActivity.class.getPackage()
-				.getName());
-		prefs.makeWorldReadable();
+    @Override
+    public void initZygote(StartupParam startupParam) throws Throwable {
+        sPrefs = new XSharedPreferences(Utils.THIS_PKG_NAME, MainActivity.class.getSimpleName());
+        logD(TAG, sPrefs.toString());
+        Utils.debug = sPrefs.getBoolean("debug", false);
 
-		// change values in framework-res
-		XResources.setSystemWideReplacement("android", "string",
-				"config_dozeComponent",
-				"com.android.systemui/com.android.systemui.doze.DozeService");
-		XResources.setSystemWideReplacement("android", "bool",
-				"config_dozeAfterScreenOff", true);
-		XResources.setSystemWideReplacement("android", "bool",
-				"config_powerDecoupleInteractiveModeFromDisplay", true);
+        if (!sPrefs.getBoolean("can_read_prefs", false)) {
+            // With SELinux enforcing, it might happen that we don't have access
+            // to the prefs file. Test this by reading a test key that should be
+            // set to true. If it is false, we either can't read the file or the
+            // user has never opened the preference screen before.
+            // Credits to AndroidN-ify
+            logW(TAG, "Can't read prefs file, default values will be applied in hooks!");
+        }
 
-		XResources.setSystemWideReplacement("android", "integer",
-				"config_screenBrightnessDoze", Integer.parseInt(prefs
-						.getString("config_screenBrightnessDoze", "17")));
-	}
+        setSystemWideReplacement("android", "string", "config_dozeComponent", "com.android.systemui/com.android.systemui.doze.DozeService");
+        setSystemWideReplacement("android", "bool", "config_dozeAfterScreenOff", true);
+        setSystemWideReplacement("android", "bool", "config_powerDecoupleInteractiveModeFromDisplay", true);
 
-	@Override
-	public void handleInitPackageResources(
-			XC_InitPackageResources.InitPackageResourcesParam initPackageResourcesParam)
-			throws Throwable {
+        setSystemWideReplacement("android", "integer", DOZE_BRIGHTNESS, sPrefs.getInt(DOZE_BRIGHTNESS, 17));
+    }
 
-		// change values in com.android.systemui
-		if (!initPackageResourcesParam.packageName
-				.equals("com.android.systemui"))
-			return;
+    @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        switch (lpparam.packageName) {
+            case PACKAGE_SYSTEMUI:
+                logD(TAG, "Hooking SystemUI");
+                SystemUiHook.hook(lpparam.classLoader, sPrefs);
+                break;
+            case Utils.PACKAGE_ANDROID:
+                logD(TAG, "Hooking Android package");
+                AndroidHook.hook(lpparam.classLoader, sPrefs);
+                break;
+            case THIS_PKG_NAME:
+                logD(TAG, "Hooking this module");
+                findAndHookMethod(THIS_PKG_NAME + ".MainActivity", lpparam.classLoader, "isEnabled", XC_MethodReplacement.returnConstant(true));
+                break;
+        }
+    }
 
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"bool", "doze_display_state_supported", true);
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"bool", "doze_pulse_on_pick_up", true);
-
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"integer", "doze_pulse_duration_in", Integer.parseInt(prefs
-						.getString("doze_pulse_duration_in", "1000")));
-
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"integer", "doze_pulse_duration_visible", Integer
-						.parseInt(prefs.getString(
-								"doze_pulse_duration_visible", "3000")));
-
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"integer", "doze_pulse_duration_out", Integer.parseInt(prefs
-						.getString("doze_pulse_duration_out", "1000")));
-
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"integer", "doze_small_icon_alpha", Integer.parseInt(prefs
-						.getString("doze_small_icon_alpha", "222")));
-
-		initPackageResourcesParam.res.setReplacement("com.android.systemui",
-				"integer", "doze_pulse_schedule_resets", Integer.parseInt(prefs
-						.getString("doze_pulse_schedule_resets", "1")));
-
-	}
+    @Override
+    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
+        if (resparam.packageName.equals(PACKAGE_SYSTEMUI)) {
+            logD(TAG, "Hooking SystemUI resources");
+            SystemUiHook.hookRes(resparam, sPrefs);
+        }
+    }
 }

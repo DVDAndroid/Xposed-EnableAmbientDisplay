@@ -22,19 +22,17 @@
  * SOFTWARE.
  */
 
-
-
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "com.dvd.android.xposed.enableambientdisplay"
         minSdkVersion 21
-        targetSdkVersion 21
-        versionCode 3
-        versionName '1.2'
+        targetSdkVersion 23
+        versionCode 18
+        versionName '1.99 - RC 4'
     }
     buildTypes {
         release {
@@ -47,5 +45,5 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided 'de.robv.android.xposed:api:82'
 }

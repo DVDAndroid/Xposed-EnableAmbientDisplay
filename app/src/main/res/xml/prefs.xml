@@ -23,49 +23,114 @@
   ~ SOFTWARE.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        android:key="not_enabled"
+        android:layout="@layout/long_title_preference"
+        android:title="@string/module_not_enabled"/>
 
     <PreferenceCategory android:title="@string/time_settings">
 
-        <EditTextPreference
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="1000"
-            android:inputType="number"
             android:key="doze_pulse_duration_in"
-            android:summary="@string/warning_battery"
-            android:title="@string/doze_pulse_duration_in"/>
+            android:layout="@layout/long_title_preference"
+            android:max="10000"
+            android:title="@string/doze_pulse_duration_in"
+            app:min="0"
+            app:progressTextSuffix="ms"/>
 
-        <EditTextPreference
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="3000"
-            android:inputType="number"
             android:key="doze_pulse_duration_visible"
-            android:summary="@string/warning_battery"
-            android:title="@string/doze_pulse_duration_visible"/>
+            android:layout="@layout/long_title_preference"
+            android:max="10000"
+            android:title="@string/doze_pulse_duration_visible"
+            app:min="0"
+            app:progressTextSuffix="ms"/>
 
-        <EditTextPreference
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
             android:defaultValue="1000"
-            android:inputType="number"
             android:key="doze_pulse_duration_out"
-            android:summary="@string/warning_battery"
-            android:title="@string/doze_pulse_duration_out"/>
+            android:layout="@layout/long_title_preference"
+            android:max="10000"
+            android:title="@string/doze_pulse_duration_out"
+            app:min="0"
+            app:progressTextSuffix="ms"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/customizations">
 
-        <Preference
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
+            android:defaultValue="17"
             android:key="config_screenBrightnessDoze"
-            android:summary="@string/warning_battery"
-            android:title="@string/config_screenBrightnessDoze"/>
+            android:layout="@layout/long_title_preference"
+            android:max="100"
+            android:title="@string/config_screenBrightnessDoze"
+            app:min="0"
+            app:progressTextSuffix="%"/>
 
-        <Preference
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
+            android:defaultValue="1"
             android:key="doze_pulse_schedule_resets"
-            android:summary="@string/warning_battery"
-            android:title="@string/doze_pulse_schedule_resets"/>
+            android:layout="@layout/long_title_preference"
+            android:max="5"
+            android:title="@string/doze_pulse_schedule_resets"
+            app:min="1"/>
+
+        <com.dvd.android.xposed.enableambientdisplay.utils.RegexValidatorPreference
+            android:defaultValue="10s,30s,60s"
+            android:key="doze_pulse_schedule"
+            android:layout="@layout/long_title_preference"
+            android:title="@string/doze_pulse_schedule"/>
+
+        <com.dvd.android.xposed.enableambientdisplay.utils.SeekBarDialogPreference
+            android:defaultValue="222"
+            android:key="doze_small_icon_alpha"
+            android:layout="@layout/long_title_preference"
+            android:max="255"
+            android:title="@string/doze_small_icon_alpha"
+            app:min="1"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/extra">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="doze_proximity"
+            android:layout="@layout/long_title_preference"
+            android:summaryOff="@string/doze_not_pulse"
+            android:summaryOn="@string/doze_will_pulse"
+            android:title="@string/doze_proximity"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="doze_power_key"
+            android:layout="@layout/long_title_preference"
+            android:summaryOff="@string/doze_no_power_key"
+            android:summaryOn="@string/doze_on_power_key"
+            android:title="@string/doze_power_key"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/notes">
 
         <Preference
-            android:key="doze_small_icon_alpha"
-            android:summary="@string/warning_visibility"
-            android:title="@string/doze_small_icon_alpha"/>
+            android:layout="@layout/long_title_preference"
+            android:summary="@string/warning_battery"/>
+
+        <Preference
+            android:layout="@layout/long_title_preference"
+            android:summary="@string/warning_visibility"/>
+
+        <SwitchPreference
+            android:key="debug"
+            android:layout="@layout/long_title_preference"
+            android:title="DEBUG"/>
 
     </PreferenceCategory>
 
