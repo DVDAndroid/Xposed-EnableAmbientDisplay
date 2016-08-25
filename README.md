@@ -1,5 +1,7 @@
 Enable Ambient Display - Xposed
 ===============================
+[![Build Status](https://travis-ci.org/DVDAndroid/Xposed-EnableAmbientDisplay.svg?branch=master)](https://travis-ci.org/DVDAndroid/Xposed-EnableAmbientDisplay)
+
 
 Easy Xposed module for Lollipop which add Ambient Display
 
