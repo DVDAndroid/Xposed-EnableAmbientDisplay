@@ -25,6 +25,8 @@
 package com.dvd.android.xposed.enableambientdisplay;
 
 
+import android.os.Build;
+
 import com.dvd.android.xposed.enableambientdisplay.hook.AndroidHook;
 import com.dvd.android.xposed.enableambientdisplay.hook.SystemUiHook;
 import com.dvd.android.xposed.enableambientdisplay.utils.Utils;
@@ -52,6 +54,15 @@ public class XposedMod implements IXposedHookZygoteInit, IXposedHookLoadPackage,
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
+        if (Build.VERSION.SDK_INT > 23) { // for context.getSharedPreferences("", MODE_WORLD_READABLE) disabled from nougat.
+            findAndHookMethod("android.app.ContextImpl", null, "checkMode", int.class, new XC_MethodReplacement() {
+                @Override
+                protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                    return null;
+                }
+            });
+        }
+
         sPrefs = new XSharedPreferences(Utils.THIS_PKG_NAME, MainActivity.class.getSimpleName());
         logD(TAG, sPrefs.toString());
         Utils.debug = sPrefs.getBoolean("debug", false);
