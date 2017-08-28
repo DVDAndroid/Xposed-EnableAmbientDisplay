@@ -186,24 +186,27 @@ public class SystemUiHook {
                     param.setResult(VALUE_DOZE_OUT);
                 }
             });
-            findAndHookMethod(hookClass, "getPulseScheduleResets", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    param.setResult(VALUE_DOZE_RESETS);
-                }
-            });
 
-            final Class<?> pulseSchedule = findClass(CLASS_DOZE_PARAMETERS_PATH + "$PulseSchedule", classLoader);
-            findAndHookMethod(hookClass, "getPulseSchedule", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    super.beforeHookedMethod(param);
+            if (Build.VERSION.SDK_INT < 25) {
+                findAndHookMethod(hookClass, "getPulseScheduleResets", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(VALUE_DOZE_RESETS);
+                    }
+                });
 
-                    param.setResult(callMethod(pulseSchedule.newInstance(), "parse", VALUE_DOZE_PULSE_SCHEDULE));
-                }
-            });
+                final Class<?> pulseSchedule = findClass(CLASS_DOZE_PARAMETERS_PATH + "$PulseSchedule", classLoader);
+                findAndHookMethod(hookClass, "getPulseSchedule", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        super.beforeHookedMethod(param);
 
-            if (Build.VERSION.SDK_INT >= 22) {
+                        param.setResult(callMethod(pulseSchedule.newInstance(), "parse", VALUE_DOZE_PULSE_SCHEDULE));
+                    }
+                });
+            }
+
+            if (Build.VERSION.SDK_INT == 22 || Build.VERSION.SDK_INT == 23) {
                 Class<?> notificationView = findClass(CLASS_NOTIFICATION_VIEW, classLoader);
                 findAndHookMethod(notificationView, "fadeIconAlpha", ImageView.class, boolean.class, long.class, new XC_MethodHook() {
                     @Override
@@ -234,7 +237,9 @@ public class SystemUiHook {
 
     public static void hookRes(XC_InitPackageResources.InitPackageResourcesParam resParam, XSharedPreferences prefs) {
         resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_SUPP, true);
-        resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_PICK_UP, true);
+
+        if (Build.VERSION.SDK_INT < 25)
+            resParam.res.setReplacement(Utils.PACKAGE_SYSTEMUI, "bool", DOZE_PICK_UP, true);
 
         if (Build.VERSION.SDK_INT < 22) {
             initPrefs(prefs);

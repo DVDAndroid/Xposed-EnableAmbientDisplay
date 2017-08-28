@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
             getPreferenceManager().setSharedPreferencesName(MainActivity.class.getSimpleName());
             addPreferencesFromResource(R.xml.prefs);
             // SELinux test, see XposedMod
-            getPreferenceManager().getSharedPreferences().edit().putBoolean("can_read_prefs", true).commit();
+            getPreferenceManager().getSharedPreferences().edit().putBoolean("can_read_prefs", true).apply();
 
             SharedPreferences prefs = getActivity().getPreferences(Context.MODE_WORLD_READABLE);
 
@@ -184,6 +184,12 @@ public class MainActivity extends Activity {
                         .show();
 
                 prefs.edit().putBoolean("welcome", false).apply();
+            }
+
+            if (Build.VERSION.SDK_INT > 24) {
+                getPreferenceScreen().removePreference(findPreference(DOZE_RESETS));
+            } else if (Build.VERSION.SDK_INT != 22 || Build.VERSION.SDK_INT != 23) {
+                getPreferenceScreen().removePreference(findPreference(DOZE_ALPHA));
             }
 
         }
